@@ -166,4 +166,12 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/main.cpp.o: \
  ../RenderWidget.h \
  ../RenderWindow.h \
  ../TexturedObject.h \
- ../main.cpp
+ ../main.cpp \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/QtGui \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QApplication \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qapplication.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/QtWidgets

@@ -15,7 +15,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3af5bfe3-5a00-4b9a-a663-d3768be7fb1e" name="变更" comment="" />
+    <list default="true" id="3af5bfe3-5a00-4b9a-a663-d3768be7fb1e" name="变更" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/CXX.includecache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/depend.internal" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/depend.make" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease_autogen.dir/ParseCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease_autogen.dir/ParseCache.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -25,6 +33,9 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="20UlbWohVBPsZrYrSzs2JSfyLUN" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -46,17 +57,12 @@
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="CMake 应用程序.FakeGLRenderWindowRelease">
-    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
+    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./objects/sphere10x10.obj ./textures/earth.ppm" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/../../" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="FakeGLRenderWindowRelease_autogen" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease_autogen" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -82,6 +88,7 @@
       <workItem from="1636107120664" duration="1325000" />
       <workItem from="1636226023982" duration="8201000" />
       <workItem from="1636672554997" duration="1751000" />
+      <workItem from="1636711273238" duration="159000" />
     </task>
     <servers />
   </component>
