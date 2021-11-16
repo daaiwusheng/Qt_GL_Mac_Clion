@@ -226,23 +226,13 @@ void FakeGL::Frustum(float left, float right, float bottom, float top, float zNe
             return;
         Matrix4 frustumMatrix = Matrix4();
         frustumMatrix.SetZero();
-//        frustumMatrix[0][0] = 2*zNear/(right-left);
-//        frustumMatrix[0][2] = (right + left)/(right - left);
-//        frustumMatrix[1][1] = 2*zNear/(top-bottom);
-//        frustumMatrix[1][2] = (top + bottom)/(top - bottom);
-//        frustumMatrix[2][2] = -1*(zFar + zNear)/(zFar - zNear);
-//        frustumMatrix[2][3] = -2*zFar*zNear/(zFar-zNear);
-//        frustumMatrix[3][2] = -1;
-
-
-        frustumMatrix[0][0] = (2.0 * zNear) / (right - left);
-        frustumMatrix[1][1] = (2.0 * zNear) / (top - bottom);
-        frustumMatrix[2][0] = (right + left) / (right - left);
-        frustumMatrix[2][1] = (top + bottom) / (top - bottom);
-        frustumMatrix[2][2] = -(zFar + zNear) / (zFar - zNear);
-        frustumMatrix[3][2] = -1.0;
-        frustumMatrix[2][3] = -(2.0 * zFar * zNear) / (zFar - zNear);
-
+        frustumMatrix[0][0] = 2*zNear/(right-left);
+        frustumMatrix[0][2] = (right + left)/(right - left);
+        frustumMatrix[1][1] = 2*zNear/(top-bottom);
+        frustumMatrix[1][2] = (top + bottom)/(top - bottom);
+        frustumMatrix[2][2] = -1*(zFar + zNear)/(zFar - zNear);
+        frustumMatrix[2][3] = -2*zFar*zNear/(zFar-zNear);
+        frustumMatrix[3][2] = -1;
         MultMatrixf(frustumMatrix.columnMajor().coordinates);
 
         this->near = zNear;
@@ -256,23 +246,13 @@ void FakeGL::Ortho(float left, float right, float bottom, float top, float zNear
             return;
         Matrix4 orthogonalMatrix = Matrix4();
         orthogonalMatrix.SetZero();
-//        orthogonalMatrix[0][0] = 2/(right - left);
-//        orthogonalMatrix[0][3] = -1*(right + left)/(right - left);
-//        orthogonalMatrix[1][1] = 2/(top - bottom);
-//        orthogonalMatrix[1][3] = -1*(top + bottom)/(top - bottom);
-//        orthogonalMatrix[2][2] = -2/(zFar - zNear);
-//        orthogonalMatrix[2][3] = -1*(zFar + zNear)/(zFar-zNear);
-//        orthogonalMatrix[3][3] = 1;
-
-        orthogonalMatrix[0][0] = 2.0 / (right - left);
-        orthogonalMatrix[1][1] = 2.0 / (top - bottom);
-        orthogonalMatrix[2][2] = - 2.0 / (zFar - zNear);
-        orthogonalMatrix[3][0] = -(right + left) / (right - left);
-        orthogonalMatrix[3][1] = -(top + bottom) / (top - bottom);
-        orthogonalMatrix[3][2] = -(zFar + zNear) / (zFar - zNear);
-        orthogonalMatrix[3][3] = 1.0;
-
-
+        orthogonalMatrix[0][0] = 2/(right - left);
+        orthogonalMatrix[0][3] = -1*(right + left)/(right - left);
+        orthogonalMatrix[1][1] = 2/(top - bottom);
+        orthogonalMatrix[1][3] = -1*(top + bottom)/(top - bottom);
+        orthogonalMatrix[2][2] = -2/(zFar - zNear);
+        orthogonalMatrix[2][3] = -1*(zFar + zNear)/(zFar-zNear);
+        orthogonalMatrix[3][3] = 1;
         MultMatrixf(orthogonalMatrix.columnMajor().coordinates);
 
         this->near = zNear;
@@ -339,10 +319,12 @@ void FakeGL::Translatef(float xTranslate, float yTranslate, float zTranslate)
 // sets the viewport
 void FakeGL::Viewport(int x, int y, int width, int height)
     { // Viewport()
-        this->viewPortWidth = width;
-        this->viewPortHeight = height;
-        this->originScreenX = x;
-        this->originScreenY = y;
+
+        float size = (width < height) ? width : height;
+        this->viewPortWidth = size;
+        this->viewPortHeight = size;
+        this->originScreenX = x + (width / 2.0 - size / 2.0);
+        this->originScreenY = y + (height / 2.0 - size / 2.0);
 
     } // Viewport()
 
@@ -456,7 +438,7 @@ void FakeGL::Vertex3f(float x, float y, float z)
         currentVertex.position = Homogeneous4(x, y, z, 1);
         currentVertex.colour = this->attribureColour;
         this->attribureNormal.unit();
-        currentVertex.normal = this->attribureNormal;
+        currentVertex.normal = Homogeneous4(this->attribureNormal);
         currentVertex.normal.w = 0;
         currentVertex.u = this->attributeU;
         currentVertex.v = this->attribureV;
@@ -685,7 +667,7 @@ void FakeGL::TransformVertex()
                                                       currentNDSCoordinates.z
                                                       );
         screenVertexWithAttributes currentScreenVertex = screenVertexWithAttributes();
-        currentScreenVertex.position = currentNDSCoordinates;
+        currentScreenVertex.position = currentDCSCoordinates;
         currentScreenVertex.normal = (this->stackModelView.back() * currentVertex.normal).Vector();
         currentScreenVertex.colour = currentVertex.colour;
         currentScreenVertex.ambient = currentVertex.ambient;
@@ -780,9 +762,7 @@ void FakeGL::RasteriseLineSegment(screenVertexWithAttributes &vertex0, screenVer
         float distance01Square = pow((vertex0.position.x - vertex1.position.x),2) +
                                  pow((vertex0.position.y - vertex1.position.y),2);
         float distance01 = sqrtf(distance01Square);
-//        float step = 1/distance01;
-        float step = (frameBuffer.height < frameBuffer.width) ? frameBuffer.width : frameBuffer.height;
-        step = 1/(2*step);
+        float step = 1/distance01;
 
         for (float i = 0; i < 1.0; i += step) {
             currentInterpolateVertex.position = i * vertex0.position + (1-i) * vertex1.position;
