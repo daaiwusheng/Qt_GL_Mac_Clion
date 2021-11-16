@@ -44,6 +44,10 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGLRenderWidget.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RGBAValue.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderParameters.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/TexturedObject.h
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
 CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGLRenderWindowRelease_autogen/mocs_compilation.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/ArcBall.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/ArcBallWidget.h
@@ -111,6 +115,12 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderController.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWidget.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWindow.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/TexturedObject.h
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h
+ /usr/local/opt/qt@5/lib/QtGui.framework/QtGui
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/QtWidgets
 CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWidget.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/Cartesian3.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/FakeGL.h
@@ -123,6 +133,10 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWidget.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWidget.cpp
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWidget.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/TexturedObject.h
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
 CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWindow.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/ArcBall.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/ArcBallWidget.h
@@ -139,6 +153,11 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWindow.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWindow.cpp
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/RenderWindow.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/TexturedObject.h
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/QtWidgets
 CMakeFiles/FakeGLRenderWindowRelease.dir/TexturedObject.cpp.o
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/Cartesian3.h
  /Users/wangyu/Desktop/利兹上课资料/9月份学期/图形学两门课/5812/Assignment1/研究/FakeGLRenderWindowRelease/FakeGL.h

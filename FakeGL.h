@@ -61,6 +61,8 @@ const unsigned int FAKEGL_PROJECTION = 2;
 // constants for texture operations
 const unsigned int FAKEGL_MODULATE = 1;
 const unsigned int FAKEGL_REPLACE = 2;
+const float PI = 3.1415927410125732421875;
+using namespace std;
 
 // class with vertex attributes
 class vertexWithAttributes
@@ -70,8 +72,17 @@ class vertexWithAttributes
     Homogeneous4 position;
 	// Colour
     RGBAValue colour;
-
-	// you may need to add more state here
+    // Normal coordinate
+	Homogeneous4 normal;
+    // material property
+    float *ambient;
+    float *diffuse;
+    float *specular;
+    float *emissive;
+    float exponent;
+    //texture coordinate
+    float u;
+    float v;
 
     }; // class vertexWithAttributes
 
@@ -83,8 +94,17 @@ class screenVertexWithAttributes
     Cartesian3 position;
 	// Colour
     RGBAValue colour;
-
-	// you may need to add more state here
+    // store normal coordinate
+	Cartesian3 normal;
+    // material property
+    float *ambient;
+    float *diffuse;
+    float *specular;
+    float *emissive;
+    float exponent;
+    //texture coordinate
+    float u;
+    float v;
 
     }; // class screenVertexWithAttributes
 
@@ -97,7 +117,7 @@ class fragmentWithAttributes
     // the RGBA colour of the fragment
     RGBAValue colour;
 
-	// you may need to add more state here
+	float depth; //every fragment needs a depth for comparing
 
     }; // class fragmentWithAttributes
 
@@ -106,14 +126,26 @@ class FakeGL
     { // class FakeGL
     // for the sake of simplicity & clarity, we make everything public
     public:
+
+    float viewPortWidth;
+    float viewPortHeight;
+    float originScreenX;
+    float originScreenY;
+
     //-----------------------------
     // MATRIX STATE
     //-----------------------------
-    
+    unsigned int matrixState; //all states are defined as unsigned int, so here we define matrixState as unsigned int
+    deque<Matrix4> stackModelView;
+    deque<Matrix4> stackProjection;
+
     //-----------------------------
     // ATTRIBUTE STATE
     //-----------------------------
-
+    bool isLighting;
+    bool isTexture;
+    bool isDepthTest;
+    bool isPhongShading;
     //-----------------------------
     // OUTPUT FROM INPUT STAGE
     // INPUT TO TRANSFORM STAGE
@@ -125,7 +157,17 @@ class FakeGL
     //-----------------------------
     // TRANSFORM/LIGHTING STATE
     //-----------------------------
-
+    Homogeneous4 lightPosition;
+    float ambientLight[4];
+    float diffuseLight[4];
+    float specularLight[4];
+    float exponent;
+    RGBAValue attribureColour;
+    float ambientMaterial[4];
+    float diffuseMaterial[4];
+    float specularMaterial[4];
+    float emissiveMaterial[4];
+    Cartesian3 attribureNormal;
     //-----------------------------
     // OUTPUT FROM TRANSFORM STAGE
     // INPUT TO RASTER STAGE
@@ -135,6 +177,9 @@ class FakeGL
     //-----------------------------
     // RASTERISE STATE
     //-----------------------------
+    unsigned int primitiveType;
+    float pointSize;
+    float lineWidth;
 
     //-----------------------------
     // OUTPUT FROM RASTER STAGE
@@ -145,12 +190,21 @@ class FakeGL
     //-----------------------------
     // TEXTURE STATE
     //-----------------------------
-
+    unsigned int textureState;
+    float attributeU;
+    float attribureV;
+    RGBAImage textureImage;
     //-----------------------------
     // FRAMEBUFFER STATE
     // OUTPUT FROM FRAGMENT STAGE
     //-----------------------------
-    
+    unsigned int colourState;
+    RGBAValue clearColour;
+    RGBAValue depthColour;
+
+    float  near;
+    float  far;
+
 	// the frame buffer itself
     RGBAImage frameBuffer;
      

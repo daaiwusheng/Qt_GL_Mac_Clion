@@ -43,7 +43,11 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGLRenderWidget.cpp.o: \
  ../RGBAImage.h \
  ../RGBAValue.h \
  ../RenderParameters.h \
- ../TexturedObject.h
+ ../TexturedObject.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
 CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGLRenderWindowRelease_autogen/mocs_compilation.cpp.o: \
  ../ArcBall.h \
  ../ArcBallWidget.h \
@@ -110,7 +114,13 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderController.cpp.o: \
  ../RenderParameters.h \
  ../RenderWidget.h \
  ../RenderWindow.h \
- ../TexturedObject.h
+ ../TexturedObject.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/QtGui \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/QtWidgets
 CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWidget.cpp.o: \
  ../Cartesian3.h \
  ../FakeGL.h \
@@ -122,7 +132,11 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWidget.cpp.o: \
  ../RenderParameters.h \
  ../RenderWidget.cpp \
  ../RenderWidget.h \
- ../TexturedObject.h
+ ../TexturedObject.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h
 CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWindow.cpp.o: \
  ../ArcBall.h \
  ../ArcBallWidget.h \
@@ -138,7 +152,12 @@ CMakeFiles/FakeGLRenderWindowRelease.dir/RenderWindow.cpp.o: \
  ../RenderWidget.h \
  ../RenderWindow.cpp \
  ../RenderWindow.h \
- ../TexturedObject.h
+ ../TexturedObject.h \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/QMouseEvent \
+ /usr/local/opt/qt@5/lib/QtGui.framework/Headers/qevent.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/QOpenGLWidget \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/Headers/qopenglwidget.h \
+ /usr/local/opt/qt@5/lib/QtWidgets.framework/QtWidgets
 CMakeFiles/FakeGLRenderWindowRelease.dir/TexturedObject.cpp.o: \
  ../Cartesian3.h \
  ../FakeGL.h \
