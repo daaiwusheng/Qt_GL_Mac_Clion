@@ -497,6 +497,7 @@ void FakeGL::Enable(unsigned int property)
                 this->isTexture = true;
                 break;
             case FAKEGL_DEPTH_TEST:
+                this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
                 this->isDepthTest = true;
                 break;
             case FAKEGL_PHONG_SHADING:
