@@ -88,7 +88,7 @@ void FakeGLRenderWidget::resizeGL(int w, int h)
     
     // resize the render image
     fakeGL.frameBuffer.Resize(w, h);
-
+    fakeGL.depthBuffer.Resize(w, h);
     // set projection matrix to be fakeGL.Ortho based on zoom & window size
     fakeGL.MatrixMode(FAKEGL_PROJECTION);
     fakeGL.LoadIdentity();

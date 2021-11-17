@@ -592,30 +592,23 @@ void FakeGL::TexImage2D(const RGBAImage &textureImage)
 // clears the frame buffer
 void FakeGL::Clear(unsigned int mask)
     { // Clear()
-        switch (mask) {
-            case FAKEGL_COLOR_BUFFER_BIT:
-            {
+
+           if(FAKEGL_COLOR_BUFFER_BIT & mask ){
                 for (int r = 0; r < this->frameBuffer.height; ++r) {
                     for (int column = 0; column < this->frameBuffer.width; ++column) {
                         this->frameBuffer[r][column] = this->clearColour;
                     }
                 }
             }
-                break;
 
-            case FAKEGL_DEPTH_BUFFER_BIT:
-            {
+            if(FAKEGL_DEPTH_BUFFER_BIT & mask ){
                 for (int r = 0; r < this->depthBuffer.height; ++r) {
                     for (int column = 0; column < this->depthBuffer.width; ++column) {
                         this->depthBuffer[r][column] = this->depthColour;
                     }
                 }
             }
-                break;
 
-            default:
-                break;
-        }
     } // Clear()
 
 // sets the clear colour for the frame buffer
