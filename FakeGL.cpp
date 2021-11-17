@@ -141,46 +141,38 @@ void FakeGL::MatrixMode(unsigned int whichMatrix)
 // pushes a matrix on the stack
 void FakeGL::PushMatrix()
     { // PushMatrix()
-        switch (this->matrixState) {
-            case FAKEGL_MODELVIEW:
-                this->stackModelView.push_back(this->stackModelView.back());
-                break;
-            case FAKEGL_PROJECTION:
-                this->stackProjection.push_back(this->stackProjection.back());
-                break;
-            default:
-                break;
+        if (this->matrixState & FAKEGL_MODELVIEW){
+            this->stackModelView.push_back(this->stackModelView.back());
+        }
+
+        if (this->matrixState & FAKEGL_PROJECTION){
+            this->stackProjection.push_back(this->stackProjection.back());
         }
     } // PushMatrix()
 
 // pops a matrix off the stack
 void FakeGL::PopMatrix()
     { // PopMatrix()
-        switch (this->matrixState) {
-            case FAKEGL_MODELVIEW:
-                this->stackModelView.pop_back();
-                break;
-            case FAKEGL_PROJECTION:
-                this->stackProjection.pop_back();
-                break;
-            default:
-                break;
+        if (this->matrixState & FAKEGL_MODELVIEW) {
+            this->stackModelView.pop_back();
         }
+
+        if (this->matrixState & FAKEGL_PROJECTION){
+            this->stackProjection.pop_back();
+        }
+
     } // PopMatrix()
 
 // load the identity matrix
 void FakeGL::LoadIdentity()
     { // LoadIdentity()
-        switch (this->matrixState) {
-            case FAKEGL_MODELVIEW:
-                this->stackModelView.back().SetIdentity();
-                break;
-            case FAKEGL_PROJECTION:
-                this->stackProjection.back().SetIdentity();
-                break;
-            default:
-                break;
+        if (this->matrixState & FAKEGL_MODELVIEW) {
+            this->stackModelView.back().SetIdentity();
         }
+        if (this->matrixState & FAKEGL_PROJECTION) {
+            this->stackProjection.back().SetIdentity();
+        }
+
     } // LoadIdentity()
 
 // multiply by a known matrix in column-major format
@@ -189,33 +181,30 @@ void FakeGL::MultMatrixf(const float *columnMajorCoordinates)
         Matrix4 currentBackMatrix;
         Matrix4 resultMatrix = Matrix4();
         resultMatrix.SetZero();
-        switch (this->matrixState) {
-            case FAKEGL_MODELVIEW:
-                currentBackMatrix = this->stackModelView.back();
-                this->stackModelView.pop_back();
-                for (int r = 0; r < 4; ++r) {
-                    for (int column = 0; column < 4; ++column) {
-                        for (int item = 0; item < 4; ++item) {
-                            resultMatrix.coordinates[r][column] += currentBackMatrix.coordinates[r][item] * columnMajorCoordinates[4*column + item];
-                        }
-                    }//for (int column = 0; column < 4; ++column)
-                }//for (int r = 0; r < 4; ++r)
-                this->stackModelView.push_back(resultMatrix);
-                break;
-            case FAKEGL_PROJECTION:
-                currentBackMatrix = this->stackProjection.back();
-                this->stackProjection.pop_back();
-                for (int r = 0; r < 4; ++r) {
-                    for (int column = 0; column < 4; ++column) {
-                        for (int item = 0; item < 4; ++item) {
-                            resultMatrix.coordinates[r][column] += currentBackMatrix.coordinates[r][item] * columnMajorCoordinates[4*column + item];
-                        }
-                    }//for (int column = 0; column < 4; ++column)
-                }//for (int r = 0; r < 4; ++r)
-                this->stackProjection.push_back(resultMatrix);
-                break;
-            default:
-                break;
+        if (this->matrixState & FAKEGL_MODELVIEW) {
+            currentBackMatrix = this->stackModelView.back();
+            this->stackModelView.pop_back();
+            for (int r = 0; r < 4; ++r) {
+                for (int column = 0; column < 4; ++column) {
+                    for (int item = 0; item < 4; ++item) {
+                        resultMatrix.coordinates[r][column] +=
+                                currentBackMatrix.coordinates[r][item] * columnMajorCoordinates[4 * column + item];
+                    }
+                }//for (int column = 0; column < 4; ++column)
+            }//for (int r = 0; r < 4; ++r)
+            this->stackModelView.push_back(resultMatrix);
+        }
+        if (this->matrixState & FAKEGL_PROJECTION){
+            currentBackMatrix = this->stackProjection.back();
+            this->stackProjection.pop_back();
+            for (int r = 0; r < 4; ++r) {
+                for (int column = 0; column < 4; ++column) {
+                    for (int item = 0; item < 4; ++item) {
+                        resultMatrix.coordinates[r][column] += currentBackMatrix.coordinates[r][item] * columnMajorCoordinates[4*column + item];
+                    }
+                }//for (int column = 0; column < 4; ++column)
+            }//for (int r = 0; r < 4; ++r)
+            this->stackProjection.push_back(resultMatrix);
         }
     } // MultMatrixf()
 
@@ -361,24 +350,20 @@ void FakeGL::Color3f(float red, float green, float blue)
 // sets material properties
 void FakeGL::Materialf(unsigned int parameterName, const float parameterValue)
     { // Materialf()
-        switch (parameterName) {
-            case FAKEGL_AMBIENT:
-                this->ambientMaterial[0] = this->ambientMaterial[1] = this->ambientMaterial[2] = parameterValue;
-                break;
-            case FAKEGL_DIFFUSE:
-                this->diffuseMaterial[0] = this->diffuseMaterial[1] = this->diffuseMaterial[2] = parameterValue;
-                break;
-            case FAKEGL_SPECULAR:
-                this->specularMaterial[0] = this->specularMaterial[1] = this->specularMaterial[2] = parameterValue;
-                break;
-            case FAKEGL_EMISSION:
-                this->emissiveMaterial[0] = this->emissiveMaterial[1] = this->emissiveMaterial[2] = parameterValue;
-                break;
-            case FAKEGL_SHININESS:
-                this->exponent = parameterValue;
-                break;
-            default:
-                break;
+        if (parameterName & FAKEGL_AMBIENT) {
+            this->ambientMaterial[0] = this->ambientMaterial[1] = this->ambientMaterial[2] = parameterValue;
+        }
+        if (parameterName & FAKEGL_DIFFUSE) {
+            this->diffuseMaterial[0] = this->diffuseMaterial[1] = this->diffuseMaterial[2] = parameterValue;
+        }
+        if (parameterName & FAKEGL_SPECULAR) {
+            this->specularMaterial[0] = this->specularMaterial[1] = this->specularMaterial[2] = parameterValue;
+        }
+        if (parameterName & FAKEGL_EMISSION) {
+            this->emissiveMaterial[0] = this->emissiveMaterial[1] = this->emissiveMaterial[2] = parameterValue;
+        }
+        if (parameterName & FAKEGL_SHININESS) {
+            this->exponent = parameterValue;
         }
 
 
@@ -386,33 +371,29 @@ void FakeGL::Materialf(unsigned int parameterName, const float parameterValue)
 
 void FakeGL::Materialfv(unsigned int parameterName, const float *parameterValues)
     { // Materialfv()
-        switch (parameterName) {
-            case FAKEGL_AMBIENT:
-                this->ambientMaterial[0] = parameterValues[0];
-                this->ambientMaterial[1] = parameterValues[1];
-                this->ambientMaterial[2] = parameterValues[2];
-                this->ambientMaterial[3] = parameterValues[3];
-                break;
-            case FAKEGL_DIFFUSE:
-                this->diffuseMaterial[0] = parameterValues[0];
-                this->diffuseMaterial[1] = parameterValues[1];
-                this->diffuseMaterial[2] = parameterValues[2];
-                this->diffuseMaterial[3] = parameterValues[3];
-                break;
-            case FAKEGL_SPECULAR:
-                this->specularMaterial[0] = parameterValues[0];
-                this->specularMaterial[1] = parameterValues[1];
-                this->specularMaterial[2] = parameterValues[2];
-                this->specularMaterial[3] = parameterValues[3];
-                break;
-            case FAKEGL_EMISSION:
-                this->emissiveMaterial[0] = parameterValues[0];
-                this->emissiveMaterial[1] = parameterValues[1];
-                this->emissiveMaterial[2] = parameterValues[2];
-                this->emissiveMaterial[3] = parameterValues[3];
-                break;
-            default:
-                break;
+        if (parameterName & FAKEGL_AMBIENT) {
+            this->ambientMaterial[0] = parameterValues[0];
+            this->ambientMaterial[1] = parameterValues[1];
+            this->ambientMaterial[2] = parameterValues[2];
+            this->ambientMaterial[3] = parameterValues[3];
+        }
+        if (parameterName & FAKEGL_DIFFUSE) {
+            this->diffuseMaterial[0] = parameterValues[0];
+            this->diffuseMaterial[1] = parameterValues[1];
+            this->diffuseMaterial[2] = parameterValues[2];
+            this->diffuseMaterial[3] = parameterValues[3];
+        }
+        if (parameterName & FAKEGL_SPECULAR) {
+            this->specularMaterial[0] = parameterValues[0];
+            this->specularMaterial[1] = parameterValues[1];
+            this->specularMaterial[2] = parameterValues[2];
+            this->specularMaterial[3] = parameterValues[3];
+        }
+        if(parameterName & FAKEGL_EMISSION) {
+            this->emissiveMaterial[0] = parameterValues[0];
+            this->emissiveMaterial[1] = parameterValues[1];
+            this->emissiveMaterial[2] = parameterValues[2];
+            this->emissiveMaterial[3] = parameterValues[3];
         }
     } // Materialfv()
 
@@ -468,43 +449,35 @@ void FakeGL::Vertex3f(float x, float y, float z)
 // disables a specific flag in the library
 void FakeGL::Disable(unsigned int property)
     { // Disable()
-        switch (property) {
-            case FAKEGL_LIGHTING:
-                this->isLighting = false;
-                break;
-            case FAKEGL_TEXTURE_2D:
-                this->isTexture = false;
-                break;
-            case FAKEGL_DEPTH_TEST:
-                this->isDepthTest = false;
-                break;
-            case FAKEGL_PHONG_SHADING:
-                this->isPhongShading = false;
-                break;
-            default:
-                break;
+        if (property & FAKEGL_LIGHTING){
+            this->isLighting = false;
+        }
+        if (property & FAKEGL_TEXTURE_2D){
+            this->isTexture = false;
+        }
+        if (property & FAKEGL_DEPTH_TEST){
+            this->isDepthTest = false;
+        }
+        if (property & FAKEGL_PHONG_SHADING){
+            this->isPhongShading = false;
         }
     } // Disable()
 
 // enables a specific flag in the library
 void FakeGL::Enable(unsigned int property)
     { // Enable()
-        switch (property) {
-            case FAKEGL_LIGHTING:
-                this->isLighting = true;
-                break;
-            case FAKEGL_TEXTURE_2D:
-                this->isTexture = true;
-                break;
-            case FAKEGL_DEPTH_TEST:
-                this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
-                this->isDepthTest = true;
-                break;
-            case FAKEGL_PHONG_SHADING:
-                this->isPhongShading = true;
-                break;
-            default:
-                break;
+        if (property & FAKEGL_LIGHTING){
+            this->isLighting = true;
+        }
+        if (property & FAKEGL_TEXTURE_2D){
+            this->isTexture = true;
+        }
+        if (property & FAKEGL_DEPTH_TEST) {
+            this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
+            this->isDepthTest = true;
+        }
+        if (property & FAKEGL_PHONG_SHADING){
+            this->isPhongShading = true;
         }
     } // Enable()
 
@@ -517,33 +490,28 @@ void FakeGL::Enable(unsigned int property)
 // sets properties for the one and only light
 void FakeGL::Light(int parameterName, const float *parameterValues)
     { // Light()
-        switch (parameterName) {
-            case FAKEGL_POSITION:
-                {
-                    Homogeneous4 position = Homogeneous4(parameterValues[0], parameterValues[1], parameterValues[2], parameterValues[3]);
-                    this->lightPosition = this->stackModelView.back() * position;
-                }
-                break;
-            case FAKEGL_AMBIENT:
-                this->ambientLight[0] = parameterValues[0];
-                this->ambientLight[1] = parameterValues[1];
-                this->ambientLight[2] = parameterValues[2];
-                this->ambientLight[3] = parameterValues[3];
-                break;
-            case FAKEGL_DIFFUSE:
-                this->diffuseLight[0] = parameterValues[0];
-                this->diffuseLight[1] = parameterValues[1];
-                this->diffuseLight[2] = parameterValues[2];
-                this->diffuseLight[3] = parameterValues[3];
-                break;
-            case FAKEGL_SPECULAR:
-                this->specularLight[0] = parameterValues[0];
-                this->specularLight[1] = parameterValues[1];
-                this->specularLight[2] = parameterValues[2];
-                this->specularLight[3] = parameterValues[3];
-                break;
-            default:
-                break;
+        if (parameterName & FAKEGL_POSITION){
+            Homogeneous4 position = Homogeneous4(parameterValues[0], parameterValues[1], parameterValues[2], parameterValues[3]);
+            this->lightPosition = this->stackModelView.back() * position;
+            }
+
+        if (parameterName & FAKEGL_AMBIENT){
+            this->ambientLight[0] = parameterValues[0];
+            this->ambientLight[1] = parameterValues[1];
+            this->ambientLight[2] = parameterValues[2];
+            this->ambientLight[3] = parameterValues[3];
+        }
+        if (parameterName & FAKEGL_DIFFUSE){
+            this->diffuseLight[0] = parameterValues[0];
+            this->diffuseLight[1] = parameterValues[1];
+            this->diffuseLight[2] = parameterValues[2];
+            this->diffuseLight[3] = parameterValues[3];
+        }
+        if (parameterName & FAKEGL_SPECULAR){
+            this->specularLight[0] = parameterValues[0];
+            this->specularLight[1] = parameterValues[1];
+            this->specularLight[2] = parameterValues[2];
+            this->specularLight[3] = parameterValues[3];
         }
 
     } // Light()
@@ -560,15 +528,11 @@ void FakeGL::Light(int parameterName, const float *parameterValues)
 // sets whether textures replace or modulate
 void FakeGL::TexEnvMode(unsigned int textureMode)
     { // TexEnvMode()
-        switch (textureMode) {
-            case FAKEGL_REPLACE:
-                this->textureState = FAKEGL_REPLACE;
-                break;
-            case FAKEGL_MODULATE:
-                this->textureState = FAKEGL_MODULATE;
-                break;
-            default:
-                break;
+        if (textureMode & FAKEGL_REPLACE){
+            this->textureState = FAKEGL_REPLACE;
+        }
+        if (textureMode & FAKEGL_MODULATE){
+            this->textureState = FAKEGL_MODULATE;
         }
 
     } // TexEnvMode()
@@ -678,33 +642,31 @@ void FakeGL::TransformVertex()
 // rasterise a single primitive if there are enough vertices on the queue
 bool FakeGL::RasterisePrimitive()
     { // RasterisePrimitive()
-        if (this->rasterQueue.empty())
+        if (this->rasterQueue.empty()){
             return false;
-        switch (this->primitiveType) {
-            case FAKEGL_POINTS:
-                RasterisePoint(*this->rasterQueue.begin());
-                this->rasterQueue.pop_front();
-                return true;
-
-            case FAKEGL_LINES:
-                if (this->rasterQueue.size()<2)
-                    return false;
-                RasteriseLineSegment(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1));
-                this->rasterQueue.pop_front();
-                this->rasterQueue.pop_front();
-                return true;
-
-            case FAKEGL_TRIANGLES:
-                if (this->rasterQueue.size()<3)
-                    return false;
-                RasteriseTriangle(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1), *(this->rasterQueue.begin() + 2));
-                this->rasterQueue.pop_front();
-                this->rasterQueue.pop_front();
-                this->rasterQueue.pop_front();
-                return true;
-
-            default:
+        }
+        if (this->primitiveType & FAKEGL_POINTS){
+            RasterisePoint(*this->rasterQueue.begin());
+            this->rasterQueue.pop_front();
+            return true;
+        }
+        if (this->primitiveType & FAKEGL_LINES) {
+            if (this->rasterQueue.size() < 2)
                 return false;
+            RasteriseLineSegment(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1));
+            this->rasterQueue.pop_front();
+            this->rasterQueue.pop_front();
+            return true;
+        }
+        if (this->primitiveType & FAKEGL_TRIANGLES) {
+            if (this->rasterQueue.size() < 3) {
+                return false;
+            }
+            RasteriseTriangle(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1), *(this->rasterQueue.begin() + 2));
+            this->rasterQueue.pop_front();
+            this->rasterQueue.pop_front();
+            this->rasterQueue.pop_front();
+            return true;
         }
 
     } // RasterisePrimitive()
