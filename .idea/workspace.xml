@@ -17,10 +17,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3af5bfe3-5a00-4b9a-a663-d3768be7fb1e" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FakeGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/FakeGL.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGL.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGL.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +91,7 @@
       <workItem from="1636107120664" duration="1325000" />
       <workItem from="1636226023982" duration="8201000" />
       <workItem from="1636672554997" duration="1751000" />
-      <workItem from="1636711273238" duration="58382000" />
+      <workItem from="1636711273238" duration="63260000" />
     </task>
     <servers />
   </component>
