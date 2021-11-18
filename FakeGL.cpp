@@ -456,13 +456,13 @@ void FakeGL::Disable(unsigned int property)
         if (property & FAKEGL_LIGHTING){
             this->isLighting = false;
         }
-        if (property & FAKEGL_TEXTURE_2D){
+        else if (property & FAKEGL_TEXTURE_2D){
             this->isTexture = false;
         }
-        if (property & FAKEGL_DEPTH_TEST){
+        else if (property & FAKEGL_DEPTH_TEST){
             this->isDepthTest = false;
         }
-        if (property & FAKEGL_PHONG_SHADING){
+        else if (property & FAKEGL_PHONG_SHADING){
             this->isPhongShading = false;
         }
     } // Disable()
@@ -472,15 +472,13 @@ void FakeGL::Enable(unsigned int property)
     { // Enable()
         if (property & FAKEGL_LIGHTING){
             this->isLighting = true;
-        }
-        if (property & FAKEGL_TEXTURE_2D){
+        } else if (property & FAKEGL_TEXTURE_2D){
             this->isTexture = true;
         }
-        if (property & FAKEGL_DEPTH_TEST) {
+        else if (property & FAKEGL_DEPTH_TEST) {
             this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
             this->isDepthTest = true;
-        }
-        if (property & FAKEGL_PHONG_SHADING){
+        } else if (property & FAKEGL_PHONG_SHADING){
             this->isPhongShading = true;
         }
     } // Enable()
@@ -733,7 +731,6 @@ void FakeGL::RasteriseLineSegment(screenVertexWithAttributes &vertex0, screenVer
         this->pointSize = tmpPointSize;
 
     } // RasteriseLineSegment()
-
 // rasterises a single triangle
 void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertexWithAttributes &vertex1, screenVertexWithAttributes &vertex2)
     { // RasteriseTriangle()
