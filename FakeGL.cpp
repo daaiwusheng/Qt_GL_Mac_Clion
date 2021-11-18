@@ -147,9 +147,7 @@ void FakeGL::PushMatrix()
     { // PushMatrix()
         if (this->matrixState & FAKEGL_MODELVIEW){
             this->stackModelView.push_back(this->stackModelView.back());
-        }
-
-        if (this->matrixState & FAKEGL_PROJECTION){
+        } else if (this->matrixState & FAKEGL_PROJECTION){
             this->stackProjection.push_back(this->stackProjection.back());
         }
     } // PushMatrix()
@@ -159,9 +157,7 @@ void FakeGL::PopMatrix()
     { // PopMatrix()
         if (this->matrixState & FAKEGL_MODELVIEW) {
             this->stackModelView.pop_back();
-        }
-
-        if (this->matrixState & FAKEGL_PROJECTION){
+        } else if (this->matrixState & FAKEGL_PROJECTION){
             this->stackProjection.pop_back();
         }
 
@@ -453,16 +449,16 @@ void FakeGL::Vertex3f(float x, float y, float z)
 // disables a specific flag in the library
 void FakeGL::Disable(unsigned int property)
     { // Disable()
-        if (property & FAKEGL_LIGHTING){
+        if (property == FAKEGL_LIGHTING){
             this->isLighting = false;
         }
-        else if (property & FAKEGL_TEXTURE_2D){
+        else if (property == FAKEGL_TEXTURE_2D){
             this->isTexture = false;
         }
-        else if (property & FAKEGL_DEPTH_TEST){
+        else if (property == FAKEGL_DEPTH_TEST){
             this->isDepthTest = false;
         }
-        else if (property & FAKEGL_PHONG_SHADING){
+        else if (property == FAKEGL_PHONG_SHADING){
             this->isPhongShading = false;
         }
     } // Disable()
@@ -470,15 +466,15 @@ void FakeGL::Disable(unsigned int property)
 // enables a specific flag in the library
 void FakeGL::Enable(unsigned int property)
     { // Enable()
-        if (property & FAKEGL_LIGHTING){
+        if (property == FAKEGL_LIGHTING){
             this->isLighting = true;
-        } else if (property & FAKEGL_TEXTURE_2D){
+        } else if (property == FAKEGL_TEXTURE_2D){
             this->isTexture = true;
         }
-        else if (property & FAKEGL_DEPTH_TEST) {
+        else if (property == FAKEGL_DEPTH_TEST) {
             this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
             this->isDepthTest = true;
-        } else if (property & FAKEGL_PHONG_SHADING){
+        } else if (property == FAKEGL_PHONG_SHADING){
             this->isPhongShading = true;
         }
     } // Enable()
@@ -532,8 +528,7 @@ void FakeGL::TexEnvMode(unsigned int textureMode)
     { // TexEnvMode()
         if (textureMode & FAKEGL_REPLACE){
             this->textureState = FAKEGL_REPLACE;
-        }
-        if (textureMode & FAKEGL_MODULATE){
+        } else if (textureMode & FAKEGL_MODULATE){
             this->textureState = FAKEGL_MODULATE;
         }
 
@@ -561,16 +556,16 @@ void FakeGL::Clear(unsigned int mask)
     { // Clear()
 
            if(FAKEGL_COLOR_BUFFER_BIT & mask ){
-                for (int r = 0; r < this->frameBuffer.height; ++r) {
-                    for (int column = 0; column < this->frameBuffer.width; ++column) {
+                for (int r = 0; r < this->frameBuffer.height; r++) {
+                    for (int column = 0; column < this->frameBuffer.width; column++) {
                         this->frameBuffer[r][column] = this->clearColour;
                     }
                 }
             }
 
             if(FAKEGL_DEPTH_BUFFER_BIT & mask ){
-                for (int r = 0; r < this->depthBuffer.height; ++r) {
-                    for (int column = 0; column < this->depthBuffer.width; ++column) {
+                for (int r = 0; r < this->depthBuffer.height; r++) {
+                    for (int column = 0; column < this->depthBuffer.width; column++) {
                         this->depthBuffer[r][column] = this->depthColour;
                     }
                 }
@@ -624,7 +619,7 @@ void FakeGL::TransformVertex()
         float translateY = scaleX;
         Cartesian3 currentDCSCoordinates = Cartesian3(currentNDSCoordinates.x * scaleX + translateX + this->originScreenX,
                                                       currentNDSCoordinates.y * scaleY + translateY + this->originScreenY,
-                                                      currentNDSCoordinates.z
+                                                      currentVCSCoordinates.z
                                                       );
         screenVertexWithAttributes currentScreenVertex = screenVertexWithAttributes();
         currentScreenVertex.position = currentDCSCoordinates;
@@ -635,6 +630,8 @@ void FakeGL::TransformVertex()
         currentScreenVertex.specular = currentVertex.specular;
         currentScreenVertex.emissive = currentVertex.emissive;
         currentScreenVertex.exponent = currentVertex.exponent;
+        currentScreenVertex.u = currentVertex.u;
+        currentScreenVertex.v = currentVertex.v;
 
         this->rasterQueue.push_back(currentScreenVertex);
 
@@ -647,20 +644,18 @@ bool FakeGL::RasterisePrimitive()
         if (this->rasterQueue.empty()){
             return false;
         }
-        if (this->primitiveType & FAKEGL_POINTS){
+        if (this->primitiveType == FAKEGL_POINTS){
             RasterisePoint(*this->rasterQueue.begin());
             this->rasterQueue.pop_front();
             return true;
-        }
-        if (this->primitiveType & FAKEGL_LINES) {
+        }else if (this->primitiveType == FAKEGL_LINES) {
             if (this->rasterQueue.size() < 2)
                 return false;
             RasteriseLineSegment(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1));
             this->rasterQueue.pop_front();
             this->rasterQueue.pop_front();
             return true;
-        }
-        if (this->primitiveType & FAKEGL_TRIANGLES) {
+        }else if (this->primitiveType == FAKEGL_TRIANGLES) {
             if (this->rasterQueue.size() < 3) {
                 return false;
             }
@@ -670,8 +665,10 @@ bool FakeGL::RasterisePrimitive()
             this->rasterQueue.pop_front();
             return true;
         }
+        return false;
 
     } // RasterisePrimitive()
+
 
 // rasterises a single point
 void FakeGL::RasterisePoint(screenVertexWithAttributes &vertex0)
@@ -731,6 +728,7 @@ void FakeGL::RasteriseLineSegment(screenVertexWithAttributes &vertex0, screenVer
         this->pointSize = tmpPointSize;
 
     } // RasteriseLineSegment()
+
 // rasterises a single triangle
 void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertexWithAttributes &vertex1, screenVertexWithAttributes &vertex2)
     { // RasteriseTriangle()
