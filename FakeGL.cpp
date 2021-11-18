@@ -23,6 +23,10 @@
 #include "RGBAImage.h"
 #include <vector>
 #include <deque>
+#include <algorithm>
+
+using namespace std;
+
 //-------------------------------------------------//
 //                                                 //
 // CONSTRUCTOR / DESTRUCTOR                        //
@@ -784,6 +788,60 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
     // create a fragment for reuse
     fragmentWithAttributes rasterFragment;
 
+    Cartesian3 normalVector0 = vertex0.normal.unit();
+    Cartesian3 normalVector1 = vertex1.normal.unit();
+    Cartesian3 normalVector2 = vertex2.normal.unit();
+
+    Cartesian3 lightVector = Cartesian3();
+
+    if (this->lightPosition.w != 0){
+        lightVector = this->lightPosition.Vector()/ this->lightPosition.w;
+    }
+    else {
+        lightVector = this->lightPosition.Vector();
+    }
+
+    float lightIntensity0[4], lightIntensity1[4], lightIntensity2[4] = {0,0,0,0};
+
+    if (this->isLighting && !this->isPhongShading){
+        //如果不是phong 模型,那么只计算定点光照强度就行了
+        float diffuseCosValue = normalVector0.dot(lightVector)/lightVector.length();
+        diffuseCosValue = max<float>(diffuseCosValue,0);
+        Cartesian3 viewVector = Cartesian3(); //默认为0
+        Cartesian3 lightAndViewVector = lightVector + viewVector;
+        float specularCosValue = normalVector0.dot(lightAndViewVector)/lightAndViewVector.length();
+        specularCosValue = max<float>(specularCosValue,0);
+        for (int i = 0; i < 4; ++i) {
+            lightIntensity0[i] = this->ambientLight[i] * vertex0.ambient[i] +
+                    this->diffuseLight[i] * vertex0.diffuse[i] * diffuseCosValue+
+                    this->specularLight[i] * vertex0.specular[i] * pow(specularCosValue, vertex0.exponent) +
+                    vertex0.emissive[i];
+        }
+        //vertex1
+        diffuseCosValue = normalVector1.dot(lightVector)/lightVector.length();
+        diffuseCosValue = max<float>(diffuseCosValue,0);
+        specularCosValue = normalVector1.dot(lightAndViewVector)/lightAndViewVector.length();
+        specularCosValue = max<float>(specularCosValue,0);
+        for (int i = 0; i < 4; ++i) {
+            lightIntensity1[i] = this->ambientLight[i] * vertex1.ambient[i] +
+                                 this->diffuseLight[i] * vertex1.diffuse[i] * diffuseCosValue+
+                                 this->specularLight[i] * vertex1.specular[i] * pow(specularCosValue, vertex1.exponent) +
+                                 vertex1.emissive[i];
+        }
+        //vertex2
+        diffuseCosValue = normalVector2.dot(lightVector)/lightVector.length();
+        diffuseCosValue = max<float>(diffuseCosValue,0);
+        specularCosValue = normalVector2.dot(lightAndViewVector)/lightAndViewVector.length();
+        specularCosValue = max<float>(specularCosValue,0);
+        for (int i = 0; i < 4; ++i) {
+            lightIntensity2[i] = this->ambientLight[i] * vertex2.ambient[i] +
+                                 this->diffuseLight[i] * vertex2.diffuse[i] * diffuseCosValue+
+                                 this->specularLight[i] * vertex2.specular[i] * pow(specularCosValue, vertex2.exponent) +
+                                 vertex2.emissive[i];
+        }
+
+    }//if (this->isLighting && !this->isPhongShading)
+
     // loop through the pixels in the bounding box
     for (rasterFragment.row = minY; rasterFragment.row <= maxY; rasterFragment.row++)
         { // per row
@@ -808,10 +866,87 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
             // now perform the half-plane test
             if ((alpha < 0.0) || (beta < 0.0) || (gamma < 0.0))
                 continue;
+            //计算当前fragment 的 depth
+            float currentFragmentDepth = alpha * vertex0.position.z + beta * vertex1.position.z + gamma * vertex2.position.z;
+            //归一化,下一个函数会用0-1的值
+            rasterFragment.depth = (this->far - currentFragmentDepth) / (this->far - this->near);
+            if (rasterFragment.depth > 1 || rasterFragment.depth < 0){
+                continue;
+            }
+            if (this->isLighting){
+                float currentRed, currentGreen, currentBlue, currentAlpha = 0;
+                if (this->isPhongShading){
+                    Cartesian3 currentFragmentNormal = alpha * normalVector0 + beta * normalVector1 + gamma * normalVector2;
+                    float currentFragmentExponent = alpha * vertex0.exponent + beta * vertex1.exponent + gamma * vertex2.exponent;
+                    float currentFragmentAmbient[4], currentFragmentDiffuse[4] ,currentFragmentSpecular[4] ,currentFragmentEmissive[4] = {0,0,0,0};
+                    for (int i = 0; i < 4; ++i) {
+                        currentFragmentAmbient[i] = alpha * vertex0.ambient[i] + beta * vertex1.ambient[i] + gamma * vertex2.ambient[i];
+                        currentFragmentDiffuse[i] = alpha * vertex0.diffuse[i] + beta * vertex1.diffuse[i] + gamma * vertex2.diffuse[i];
+                        currentFragmentSpecular[i] = alpha * vertex0.specular[i] + beta * vertex1.specular[i] + gamma * vertex2.specular[i];
+                        currentFragmentEmissive[i] = alpha * vertex0.emissive[i] + beta * vertex1.emissive[i] + gamma * vertex2.emissive[i];
+                    }
+                    float diffuseCosValue = currentFragmentNormal.dot(lightVector)/lightVector.length();
+                    diffuseCosValue = max<float>(diffuseCosValue,0);
+                    Cartesian3 viewVector = Cartesian3(); //默认为0
+                    Cartesian3 lightAndViewVector = lightVector + viewVector;
+                    float specularCosValue = currentFragmentNormal.dot(lightAndViewVector)/lightAndViewVector.length();
+                    specularCosValue = max<float>(specularCosValue,0);
+                    float currentFragmentLightIntensity[4] = {0,0,0,0};
+                    for (int i = 0; i < 4; ++i) {
+                        currentFragmentLightIntensity[i] = this->ambientLight[i] * currentFragmentAmbient[i] +
+                                this->diffuseLight[i] * currentFragmentDiffuse[i] * diffuseCosValue +
+                                this->specularLight[i] * currentFragmentSpecular[i] * pow(specularCosValue,currentFragmentExponent) +
+                                currentFragmentEmissive[i];
+                    }
+                    //当前像素的颜色计算
+                    currentRed = alpha * vertex0.colour.red * currentFragmentLightIntensity[0] +
+                            beta * vertex1.colour.red * currentFragmentLightIntensity[0] +
+                            gamma * vertex2.colour.red * currentFragmentLightIntensity[0];
+                    currentGreen = alpha * vertex0.colour.green * currentFragmentLightIntensity[1] +
+                                 beta * vertex1.colour.green * currentFragmentLightIntensity[1] +
+                                 gamma * vertex2.colour.green * currentFragmentLightIntensity[1];
+                    currentBlue = alpha * vertex0.colour.blue * currentFragmentLightIntensity[2] +
+                                   beta * vertex1.colour.blue * currentFragmentLightIntensity[2] +
+                                   gamma * vertex2.colour.blue * currentFragmentLightIntensity[2];
+                    currentAlpha = alpha * vertex0.colour.alpha * currentFragmentLightIntensity[3] +
+                                   beta * vertex1.colour.alpha * currentFragmentLightIntensity[3] +
+                                   gamma * vertex2.colour.alpha * currentFragmentLightIntensity[3];
 
-            // compute colour
-            rasterFragment.colour = alpha * vertex0.colour + beta * vertex1.colour + gamma * vertex2.colour;
+                } //if (this->isPhongShading)
+                else{
+                    currentRed = alpha * vertex0.colour.red * lightIntensity0[0] +
+                                 beta * vertex1.colour.red * lightIntensity1[0] +
+                                 gamma * vertex2.colour.red * lightIntensity2[0];
+                    currentGreen = alpha * vertex0.colour.green * lightIntensity0[1] +
+                                   beta * vertex1.colour.green * lightIntensity1[1] +
+                                   gamma * vertex2.colour.green * lightIntensity2[1];
+                    currentBlue = alpha * vertex0.colour.blue * lightIntensity0[2] +
+                                  beta * vertex1.colour.blue * lightIntensity1[2] +
+                                  gamma * vertex2.colour.blue * lightIntensity2[2];
+                    currentAlpha = alpha * vertex0.colour.alpha * lightIntensity0[3] +
+                                   beta * vertex1.colour.alpha * lightIntensity1[3] +
+                                   gamma * vertex2.colour.alpha * lightIntensity2[3];
+                }
 
+                rasterFragment.colour.red = currentRed;
+                rasterFragment.colour.green = currentGreen;
+                rasterFragment.colour.blue = currentBlue;
+                rasterFragment.colour.alpha = currentAlpha;
+            } //if (this->isLighting)
+            else{
+                // compute colour
+                rasterFragment.colour = alpha * vertex0.colour + beta * vertex1.colour + gamma * vertex2.colour;
+            }
+            //计算纹理插值
+            if (this->isTexture){
+                int uCoordinate = int ((alpha * vertex0.u + beta * vertex1.u + gamma * vertex2.u) * this->textureImage.height);
+                int vCoordinate = int ((alpha * vertex0.v + beta * vertex1.v + gamma * vertex2.v) * this->textureImage.width);
+                if (this->textureState & FAKEGL_MODULATE){
+                    rasterFragment.colour = rasterFragment.colour.modulate(this->textureImage[uCoordinate][vCoordinate]);
+                }else if (this->textureState & FAKEGL_REPLACE){
+                    rasterFragment.colour = this->textureImage[uCoordinate][vCoordinate];
+                }
+            }
             // now we add it to the queue for fragment processing
             fragmentQueue.push_back(rasterFragment);
             } // per pixel
