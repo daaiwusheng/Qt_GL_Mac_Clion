@@ -623,6 +623,12 @@ void FakeGL::TransformVertex()
                                                       );
         screenVertexWithAttributes currentScreenVertex = screenVertexWithAttributes();
         currentScreenVertex.position = currentDCSCoordinates;
+        if (currentVCSCoordinates.w !=0){
+            currentScreenVertex.fragmentPosition = currentVCSCoordinates.Vector()/currentVCSCoordinates.w;
+        } else{
+            currentScreenVertex.fragmentPosition = currentVCSCoordinates.Vector();
+        }
+
         currentScreenVertex.normal = (this->stackModelView.back() * currentVertex.normal).Vector();
         currentScreenVertex.colour = currentVertex.colour;
         currentScreenVertex.ambient = currentVertex.ambient;
@@ -782,7 +788,8 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
 
     // create a fragment for reuse
     fragmentWithAttributes rasterFragment;
-
+    float adjustExponent = 1.1;
+    float adjustOffset = 45.0;
     Cartesian3 normalVector0 = vertex0.normal.unit();
     Cartesian3 normalVector1 = vertex1.normal.unit();
     Cartesian3 normalVector2 = vertex2.normal.unit();
@@ -790,7 +797,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
     Cartesian3 lightVector = Cartesian3();
 
     if (this->lightPosition.w != 0){
-        lightVector = this->lightPosition.Vector()/ this->lightPosition.w;
+        lightVector = this->lightPosition.Vector() / this->lightPosition.w;
     }
     else {
         lightVector = this->lightPosition.Vector();
@@ -800,11 +807,15 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
 
     if (this->isLighting && !this->isPhongShading){
         //如果不是phong 模型,那么只计算定点光照强度就行了
-        float diffuseCosValue = normalVector0.dot(lightVector)/lightVector.length();
+        if (this->lightPosition.w != 0){
+            lightVector = lightVector - vertex0.fragmentPosition;
+        }
+        lightVector = lightVector.unit();
+        float diffuseCosValue = normalVector0.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        Cartesian3 viewVector = Cartesian3(); //默认为0
+        Cartesian3 viewVector = -1*vertex0.fragmentPosition; //默认为0
         Cartesian3 lightAndViewVector = lightVector + viewVector;
-        float specularCosValue = normalVector0.dot(lightAndViewVector)/lightAndViewVector.length();
+        float specularCosValue = normalVector0.dot(lightAndViewVector.unit());
         specularCosValue = max<float>(specularCosValue,0);
         for (int i = 0; i < 4; ++i) {
             lightIntensity0[i] = this->ambientLight[i] * vertex0.ambient[i] +
@@ -813,10 +824,15 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                     vertex0.emissive[i];
         }
         //vertex1
-        diffuseCosValue = normalVector1.dot(lightVector)/lightVector.length();
+        if (this->lightPosition.w != 0){
+            lightVector = lightVector - vertex0.fragmentPosition;
+        }
+        lightVector = lightVector.unit();
+        diffuseCosValue = normalVector1.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        specularCosValue = normalVector1.dot(lightAndViewVector)/lightAndViewVector.length();
-        specularCosValue = max<float>(specularCosValue,0);
+        viewVector = -1*vertex1.fragmentPosition; //默认为0
+        lightAndViewVector = lightVector + viewVector;
+        specularCosValue = normalVector1.dot(lightAndViewVector.unit());
         for (int i = 0; i < 4; ++i) {
             lightIntensity1[i] = this->ambientLight[i] * vertex1.ambient[i] +
                                  this->diffuseLight[i] * vertex1.diffuse[i] * diffuseCosValue+
@@ -824,10 +840,15 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                                  vertex1.emissive[i];
         }
         //vertex2
-        diffuseCosValue = normalVector2.dot(lightVector)/lightVector.length();
+        if (this->lightPosition.w != 0){
+            lightVector = lightVector - vertex0.fragmentPosition;
+        }
+        lightVector = lightVector.unit();
+        diffuseCosValue = normalVector2.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        specularCosValue = normalVector2.dot(lightAndViewVector)/lightAndViewVector.length();
-        specularCosValue = max<float>(specularCosValue,0);
+        viewVector = -1*vertex2.fragmentPosition; //默认为0
+        lightAndViewVector = lightVector + viewVector;
+        specularCosValue = normalVector2.dot(lightAndViewVector.unit());
         for (int i = 0; i < 4; ++i) {
             lightIntensity2[i] = this->ambientLight[i] * vertex2.ambient[i] +
                                  this->diffuseLight[i] * vertex2.diffuse[i] * diffuseCosValue+
@@ -872,6 +893,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                 float currentRed, currentGreen, currentBlue, currentAlpha = 0;
                 if (this->isPhongShading){
                     Cartesian3 currentFragmentNormal = alpha * normalVector0 + beta * normalVector1 + gamma * normalVector2;
+                    Cartesian3 currentFragmentPosition = alpha * vertex0.fragmentPosition + beta * vertex1.position + gamma * vertex2.fragmentPosition;
                     float currentFragmentExponent = alpha * vertex0.exponent + beta * vertex1.exponent + gamma * vertex2.exponent;
                     float currentFragmentAmbient[4], currentFragmentDiffuse[4] ,currentFragmentSpecular[4] ,currentFragmentEmissive[4] = {0,0,0,0};
                     for (int i = 0; i < 4; ++i) {
@@ -880,11 +902,15 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                         currentFragmentSpecular[i] = alpha * vertex0.specular[i] + beta * vertex1.specular[i] + gamma * vertex2.specular[i];
                         currentFragmentEmissive[i] = alpha * vertex0.emissive[i] + beta * vertex1.emissive[i] + gamma * vertex2.emissive[i];
                     }
-                    float diffuseCosValue = currentFragmentNormal.dot(lightVector)/lightVector.length();
+                    if (this->lightPosition.w != 0){
+                        lightVector = lightVector - currentFragmentPosition;
+                    }
+                    lightVector = lightVector.unit();
+                    float diffuseCosValue = currentFragmentNormal.dot(lightVector);
                     diffuseCosValue = max<float>(diffuseCosValue,0);
-                    Cartesian3 viewVector = Cartesian3(); //默认为0
+                    Cartesian3 viewVector = -1*currentFragmentPosition; //默认为0
                     Cartesian3 lightAndViewVector = lightVector + viewVector;
-                    float specularCosValue = currentFragmentNormal.dot(lightAndViewVector)/lightAndViewVector.length();
+                    float specularCosValue = currentFragmentNormal.dot(lightAndViewVector.unit());
                     specularCosValue = max<float>(specularCosValue,0);
                     float currentFragmentLightIntensity[4] = {0,0,0,0};
                     for (int i = 0; i < 4; ++i) {
@@ -921,8 +947,12 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                     currentAlpha = alpha * vertex0.colour.alpha * lightIntensity0[3] +
                                    beta * vertex1.colour.alpha * lightIntensity1[3] +
                                    gamma * vertex2.colour.alpha * lightIntensity2[3];
-                }
 
+                }
+                currentRed = pow(currentRed,adjustExponent) + adjustOffset;
+                currentGreen = pow(currentGreen,adjustExponent) + adjustOffset;
+                currentBlue = pow(currentBlue,adjustExponent) + adjustOffset;
+                currentAlpha = pow(currentAlpha,adjustExponent) + adjustOffset;
                 rasterFragment.colour.red = currentRed;
                 rasterFragment.colour.green = currentGreen;
                 rasterFragment.colour.blue = currentBlue;

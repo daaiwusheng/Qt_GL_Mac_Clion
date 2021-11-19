@@ -92,6 +92,8 @@ class screenVertexWithAttributes
     public:
 	// Position in DCS
     Cartesian3 position;
+    // Position in DCS
+    Cartesian3 fragmentPosition; //用于保存viewmodel变换后的坐标,后面用于计算光照,因为光照都在模型空间进行
 	// Colour
     RGBAValue colour;
     // store normal coordinate
