@@ -619,7 +619,7 @@ void FakeGL::TransformVertex()
         float translateY = scaleX;
         Cartesian3 currentDCSCoordinates = Cartesian3(currentNDSCoordinates.x * scaleX + translateX + this->originScreenX,
                                                       currentNDSCoordinates.y * scaleY + translateY + this->originScreenY,
-                                                      currentVCSCoordinates.z
+                                                      -currentNDSCoordinates.z
                                                       );
         screenVertexWithAttributes currentScreenVertex = screenVertexWithAttributes();
         currentScreenVertex.position = currentDCSCoordinates;

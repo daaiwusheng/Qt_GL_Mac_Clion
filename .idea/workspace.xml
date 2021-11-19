@@ -63,7 +63,7 @@
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="CMake 应用程序.FakeGLRenderWindowRelease">
-    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./objects/sphere10x10.obj ./textures/earth.ppm" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/../../" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
+    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./objects/triangle_groundplane.obj ./textures/earth.ppm" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/../../" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -94,7 +94,7 @@
       <workItem from="1636107120664" duration="1325000" />
       <workItem from="1636226023982" duration="8201000" />
       <workItem from="1636672554997" duration="1751000" />
-      <workItem from="1636711273238" duration="80726000" />
+      <workItem from="1636711273238" duration="93840000" />
     </task>
     <servers />
   </component>
