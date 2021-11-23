@@ -601,6 +601,7 @@ void FakeGL::TexImage2D(const RGBAImage &textureImage)
 void FakeGL::Clear(unsigned int mask)
     { // Clear()
            //just set frame buffer and depth buffer to a same value.
+           //here the mask can own both FAKEGL_COLOR_BUFFER_BIT and FAKEGL_DEPTH_BUFFER_BIT
            if(FAKEGL_COLOR_BUFFER_BIT & mask ){
                 for (int r = 0; r < this->frameBuffer.height; r++) {
                     for (int column = 0; column < this->frameBuffer.width; column++) {
