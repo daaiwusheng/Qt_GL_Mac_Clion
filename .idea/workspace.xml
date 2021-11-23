@@ -17,7 +17,10 @@
   <component name="ChangeListManager">
     <list default="true" id="3af5bfe3-5a00-4b9a-a663-d3768be7fb1e" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FakeGL.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/FakeGL.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGL.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease.dir/FakeGL.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease_autogen.dir/ParseCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/FakeGLRenderWindowRelease_autogen.dir/ParseCache.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/FakeGLRenderWindowRelease" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +63,7 @@
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="CMake 应用程序.FakeGLRenderWindowRelease">
-    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./objects/sphere20x20.obj ./textures/earth.ppm" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/../../" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
+    <configuration name="FakeGLRenderWindowRelease" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./objects/horse_smooth.obj ./textures/earth.ppm" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/../../" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FakeGLRenderWindowRelease" TARGET_NAME="FakeGLRenderWindowRelease" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="FakeGLRenderWindowRelease" RUN_TARGET_NAME="FakeGLRenderWindowRelease">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -91,7 +94,7 @@
       <workItem from="1636107120664" duration="1325000" />
       <workItem from="1636226023982" duration="8201000" />
       <workItem from="1636672554997" duration="1751000" />
-      <workItem from="1636711273238" duration="123117000" />
+      <workItem from="1636711273238" duration="124410000" />
     </task>
     <servers />
   </component>
