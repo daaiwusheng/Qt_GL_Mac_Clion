@@ -739,12 +739,15 @@ void FakeGL::RasterisePoint(screenVertexWithAttributes &vertex0)
         float maxY = vertex0.position.y + halfPointSize;
 
         fragmentWithAttributes currentFragment;
+        //then calculate all fragments in the box.
         for (currentFragment.row = minY;  currentFragment.row < maxY; currentFragment.row++) {
+            //start rwo from minY and end it at maxY
             if (currentFragment.row<0)
                 continue;
             if (currentFragment.row >= this->frameBuffer.height)
                 break;
             for (currentFragment.col = minX; currentFragment.col < maxX; currentFragment.col++) {
+                //start column from minX and end it at maxX
                 if (currentFragment.col<0)
                     continue;
                 if (currentFragment.col>= this->frameBuffer.width)
@@ -755,12 +758,22 @@ void FakeGL::RasterisePoint(screenVertexWithAttributes &vertex0)
                         currentFragment.row - vertex0.position.y,
                         0
                         );
+                //here we calculate the distance between current fragment and current vertex.
+                //for saving resources, we just need to compare the distance square value rather than
+                //the actual distance.
+                //We compare the distance with radius square value.
+                //if distanceSquare is greater than radiusSquare, then skip the curren fragment as it is
+                //out of the point.
                 float distanceSquare = distanceVector.dot(distanceVector);
                 float radiusSquare = this->pointSize * this->pointSize;
                 if (distanceSquare > radiusSquare)
                     continue;
+                //if the fragment is in the point, then we set the vertex's colour and depth to it.
+                //As all of the fragments form the point.
                 currentFragment.colour = vertex0.colour;
                 currentFragment.depth = vertex0.position.z;
+                //then put the fragment in the fragmentQueue.
+                //later we can put the fragment into the framebuffer,then it can be shown on the screen.
                 this->fragmentQueue.push_back(currentFragment);
             }
         }
@@ -771,20 +784,23 @@ void FakeGL::RasterisePoint(screenVertexWithAttributes &vertex0)
 void FakeGL::RasteriseLineSegment(screenVertexWithAttributes &vertex0, screenVertexWithAttributes &vertex1)
     { // RasteriseLineSegment()
         screenVertexWithAttributes currentInterpolateVertex = screenVertexWithAttributes();
+        //store the point size, as we will change it for the line, but we should set it back after
+        //completing the line rasterising.
         float tmpPointSize = this->pointSize;
+        //set the point size as the half of the line width. As we need rasterise every point of the line.
         PointSize(this->lineWidth*0.5);
         float distance01Square = pow((vertex0.position.x - vertex1.position.x),2) +
                                  pow((vertex0.position.y - vertex1.position.y),2);
         float distance01 = sqrtf(distance01Square);
         float step = 1/distance01;
-
+        //here it's just a line interpolation. a formula.
         for (float i = 0; i < 1.0; i += step) {
             currentInterpolateVertex.position = i * vertex0.position + (1-i) * vertex1.position;
             currentInterpolateVertex.colour = i * vertex0.colour + (1-i) * vertex1.colour;
             RasterisePoint(currentInterpolateVertex);
         }
 
-        this->pointSize = tmpPointSize;
+        this->pointSize = tmpPointSize;// reset the point size.
 
     } // RasteriseLineSegment()
 
@@ -841,49 +857,63 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
 
     // create a fragment for reuse
     fragmentWithAttributes rasterFragment;
+    //after calculating the light, colour, texture and material, we need adjust the colour for making
+    //it closer to the  GL example. I searched this method on Internet, but I do not know why we need this
+    //adjustment.
+    //So here these two factor are set.
     float adjustExponent = 1.1;
     float adjustOffset = 45.0;
+    //get the unit normal vector, later we need them for calculating light values.
     Cartesian3 normalVector0 = vertex0.normal.unit();
     Cartesian3 normalVector1 = vertex1.normal.unit();
     Cartesian3 normalVector2 = vertex2.normal.unit();
 
     Cartesian3 lightVector = Cartesian3();
-
+    //if w of the light position is zero, then it's a directional light. we do not need to calculate
+    //the light vector every time.
     if (this->lightPosition.w != 0){
         lightVector = this->lightPosition.Vector() / this->lightPosition.w;
     }
     else {
         lightVector = this->lightPosition.Vector();
     }
-
+    //if we do not use phong shading, we need calculating every vertex's light intensity.
     float lightIntensity0[4], lightIntensity1[4], lightIntensity2[4] = {0,0,0,0};
 
     if (this->isLighting && !this->isPhongShading){
-        //如果不是phong 模型,那么只计算定点光照强度就行了
+        //here we need to compare the lighting calculating is enabled.
+        //but the phong shading is disabled.
+        //Then we need to calculate ambient, diffuse, emissive and specular light values, and combine
+        //them.
         if (this->lightPosition.w != 0){
+            //w !=0 means the light is a point light, so we need calculate the light vector.
             lightVector = lightVector - vertex0.fragmentPosition;
         }
         lightVector = lightVector.unit();
         float diffuseCosValue = normalVector0.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        Cartesian3 viewVector = -1*vertex0.fragmentPosition; //默认为0
-        Cartesian3 lightAndViewVector = lightVector + viewVector;
+        //the eye is at origin, so use the position of VCS coordinate of the vertex,
+        //we can get the vector starts at current vertex ends at eys. just like zero vector - fragmentPosition.
+        Cartesian3 viewVector = -1*vertex0.fragmentPosition;
+        Cartesian3 lightAndViewVector = lightVector + viewVector; // then add light vector and view vector.
+        //then we can calculate the specular cosine value.
         float specularCosValue = normalVector0.dot(lightAndViewVector.unit());
-        specularCosValue = max<float>(specularCosValue,0);
+        specularCosValue = max<float>(specularCosValue,0);//guarantee specularCosValue bigger than zero.
         for (int i = 0; i < 4; ++i) {
+            //here, it's just a formula.
             lightIntensity0[i] = this->ambientLight[i] * vertex0.ambient[i] +
                     this->diffuseLight[i] * vertex0.diffuse[i] * diffuseCosValue+
                     this->specularLight[i] * vertex0.specular[i] * pow(specularCosValue, vertex0.exponent) +
                     vertex0.emissive[i];
         }
-        //vertex1
+        //vertex1 is same as vertex0
         if (this->lightPosition.w != 0){
             lightVector = lightVector - vertex0.fragmentPosition;
         }
         lightVector = lightVector.unit();
         diffuseCosValue = normalVector1.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        viewVector = -1*vertex1.fragmentPosition; //默认为0
+        viewVector = -1*vertex1.fragmentPosition;
         lightAndViewVector = lightVector + viewVector;
         specularCosValue = normalVector1.dot(lightAndViewVector.unit());
         for (int i = 0; i < 4; ++i) {
@@ -892,14 +922,14 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                                  this->specularLight[i] * vertex1.specular[i] * pow(specularCosValue, vertex1.exponent) +
                                  vertex1.emissive[i];
         }
-        //vertex2
+        //vertex2 is same as vertex0
         if (this->lightPosition.w != 0){
             lightVector = lightVector - vertex0.fragmentPosition;
         }
         lightVector = lightVector.unit();
         diffuseCosValue = normalVector2.dot(lightVector);
         diffuseCosValue = max<float>(diffuseCosValue,0);
-        viewVector = -1*vertex2.fragmentPosition; //默认为0
+        viewVector = -1*vertex2.fragmentPosition;
         lightAndViewVector = lightVector + viewVector;
         specularCosValue = normalVector2.dot(lightAndViewVector.unit());
         for (int i = 0; i < 4; ++i) {
@@ -935,9 +965,9 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
             // now perform the half-plane test
             if ((alpha < 0.0) || (beta < 0.0) || (gamma < 0.0))
                 continue;
-            //计算当前fragment 的 depth
+            //interpolate current fragment depth
             float currentFragmentDepth = alpha * vertex0.position.z + beta * vertex1.position.z + gamma * vertex2.position.z;
-            //归一化,下一个函数会用0-1的值
+            //normalize the depth as we need multiply it by 255 and then compare the result with 255 to test the depth.
             rasterFragment.depth = (this->far - currentFragmentDepth) / (this->far - this->near);
             if (rasterFragment.depth > 1 || rasterFragment.depth < 0){
                 continue;
@@ -945,6 +975,9 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
             if (this->isLighting){
                 float currentRed, currentGreen, currentBlue, currentAlpha = 0;
                 if (this->isPhongShading){
+                    //phong shading is a formula.
+                    //we need calculating light values for every fragment.
+                    //by interpolating every normal and fragment position and exponent and ambient diffuse specular and emissive.
                     Cartesian3 currentFragmentNormal = alpha * normalVector0 + beta * normalVector1 + gamma * normalVector2;
                     Cartesian3 currentFragmentPosition = alpha * vertex0.fragmentPosition + beta * vertex1.position + gamma * vertex2.fragmentPosition;
                     float currentFragmentExponent = alpha * vertex0.exponent + beta * vertex1.exponent + gamma * vertex2.exponent;
@@ -956,15 +989,19 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                         currentFragmentEmissive[i] = alpha * vertex0.emissive[i] + beta * vertex1.emissive[i] + gamma * vertex2.emissive[i];
                     }
                     if (this->lightPosition.w != 0){
+                        //w !=0 means the light is a point light, so we need calculate the light vector.
                         lightVector = lightVector - currentFragmentPosition;
                     }
                     lightVector = lightVector.unit();
                     float diffuseCosValue = currentFragmentNormal.dot(lightVector);
                     diffuseCosValue = max<float>(diffuseCosValue,0);
-                    Cartesian3 viewVector = -1*currentFragmentPosition; //默认为0
-                    Cartesian3 lightAndViewVector = lightVector + viewVector;
+                    //the eye is at origin, so use the position of VCS coordinate of the vertex,
+                    //we can get the vector starts at current vertex ends at eys. just like zero vector - fragmentPosition.
+                    Cartesian3 viewVector = -1*currentFragmentPosition;
+                    Cartesian3 lightAndViewVector = lightVector + viewVector; // then add light vector and view vector.
+                    //then we can calculate the specular cosine value.
                     float specularCosValue = currentFragmentNormal.dot(lightAndViewVector.unit());
-                    specularCosValue = max<float>(specularCosValue,0);
+                    specularCosValue = max<float>(specularCosValue,0);//guarantee specularCosValue bigger than zero.
                     float currentFragmentLightIntensity[4] = {0,0,0,0};
                     for (int i = 0; i < 4; ++i) {
                         currentFragmentLightIntensity[i] = this->ambientLight[i] * currentFragmentAmbient[i] +
@@ -972,7 +1009,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                                 this->specularLight[i] * currentFragmentSpecular[i] * pow(specularCosValue,currentFragmentExponent) +
                                 currentFragmentEmissive[i];
                     }
-                    //当前像素的颜色计算
+                    //interpolate colour component
                     currentRed = alpha * vertex0.colour.red * currentFragmentLightIntensity[0] +
                             beta * vertex1.colour.red * currentFragmentLightIntensity[0] +
                             gamma * vertex2.colour.red * currentFragmentLightIntensity[0];
@@ -988,6 +1025,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
 
                 } //if (this->isPhongShading)
                 else{
+                    //if not phongshading, we do not need calculating every fragment's light values, just interpolating them by barycentric coordinates
                     currentRed = alpha * vertex0.colour.red * lightIntensity0[0] +
                                  beta * vertex1.colour.red * lightIntensity1[0] +
                                  gamma * vertex2.colour.red * lightIntensity2[0];
@@ -1002,6 +1040,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                                    gamma * vertex2.colour.alpha * lightIntensity2[3];
 
                 }
+                //adjust the colour then we can let the colour closer to the GL example.
                 currentRed = pow(currentRed,adjustExponent) + adjustOffset;
                 currentGreen = pow(currentGreen,adjustExponent) + adjustOffset;
                 currentBlue = pow(currentBlue,adjustExponent) + adjustOffset;
@@ -1015,7 +1054,7 @@ void FakeGL::RasteriseTriangle(screenVertexWithAttributes &vertex0, screenVertex
                 // compute colour
                 rasterFragment.colour = alpha * vertex0.colour + beta * vertex1.colour + gamma * vertex2.colour;
             }
-            //计算纹理插值
+            //calculating the interpolation values of texture.if texture is enabled.
             if (this->isTexture){
                 int uCoordinate = int ((alpha * vertex0.u + beta * vertex1.u + gamma * vertex2.u) * this->textureImage.height);
                 int vCoordinate = int ((alpha * vertex0.v + beta * vertex1.v + gamma * vertex2.v) * this->textureImage.width);
@@ -1039,6 +1078,8 @@ void FakeGL::ProcessFragment()
         int currentRow = currentFragment.row;
         int currentCol = currentFragment.col;
         if (this->isDepthTest){
+            //if depth test is enabled, we need compare the depth,and let smaller one go in to the framebuffer,
+            // then it can be shown on the screen. And update the depthBuffer.
             float currentDepth = (float) this->depthBuffer[currentRow][currentCol].alpha;
             float currentFragmentDepth = currentFragment.depth * 255;
             if (currentFragmentDepth <= currentDepth){
