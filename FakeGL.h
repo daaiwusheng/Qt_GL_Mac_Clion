@@ -75,11 +75,11 @@ class vertexWithAttributes
     // Normal coordinate
 	Homogeneous4 normal;
     // material property
-    float *ambient;
-    float *diffuse;
-    float *specular;
-    float *emissive;
-    float exponent;
+    float *ambient; //store ambient value for a vertex
+    float *diffuse; //store diffuse value for a vertex
+    float *specular; //store specular value for a vertex
+    float *emissive; //store emissive value for a vertex
+    float exponent; //store shine exponent
     //texture coordinate
     float u;
     float v;
@@ -93,17 +93,19 @@ class screenVertexWithAttributes
 	// Position in DCS
     Cartesian3 position;
     // Position in DCS
-    Cartesian3 fragmentPosition; //用于保存viewmodel变换后的坐标,后面用于计算光照,因为光照都在模型空间进行
+    //after transformed by viewmodel matrix, we store the position in this fragmentPosition var,
+    //as we need it for calculating the eye view vector. In VCS, calculating the eye vector is easy, as the camera is at origin
+    Cartesian3 fragmentPosition;
 	// Colour
     RGBAValue colour;
     // store normal coordinate
 	Cartesian3 normal;
     // material property
-    float *ambient;
-    float *diffuse;
-    float *specular;
-    float *emissive;
-    float exponent;
+    float *ambient; //store ambient value for a screen vertex
+    float *diffuse; //store diffuse value for a screen vertex
+    float *specular; //store specular value for a screen vertex
+    float *emissive; //store emissive value for a screen vertex
+    float exponent; //store shine exponent
     //texture coordinate
     float u;
     float v;
@@ -129,25 +131,27 @@ class FakeGL
     // for the sake of simplicity & clarity, we make everything public
     public:
 
-    float viewPortWidth;
-    float viewPortHeight;
-    float originScreenX;
-    float originScreenY;
+    float viewPortWidth; //store the width of the viewport
+    float viewPortHeight; //store the height of the viewport
+    float originScreenX; //store the origin x of the screen
+    float originScreenY; //store the origin y of the screen
 
     //-----------------------------
     // MATRIX STATE
     //-----------------------------
     unsigned int matrixState; //all states are defined as unsigned int, so here we define matrixState as unsigned int
+    //according to the that we have two states of matrix, FAKEGL_MODELVIEW and FAKEGL_PROJECTION,
+    //so we define two stack for managing the matrix calculating.
     deque<Matrix4> stackModelView;
     deque<Matrix4> stackProjection;
 
     //-----------------------------
     // ATTRIBUTE STATE
     //-----------------------------
-    bool isLighting;
-    bool isTexture;
-    bool isDepthTest;
-    bool isPhongShading;
+    bool isLighting; //a switch of storing if using lighting
+    bool isTexture; //a switch of storing if using texture
+    bool isDepthTest; //a switch of storing if using depth test
+    bool isPhongShading; //a switch of storing if using PhoneShading
     //-----------------------------
     // OUTPUT FROM INPUT STAGE
     // INPUT TO TRANSFORM STAGE
@@ -159,17 +163,17 @@ class FakeGL
     //-----------------------------
     // TRANSFORM/LIGHTING STATE
     //-----------------------------
-    Homogeneous4 lightPosition;
-    float ambientLight[4];
-    float diffuseLight[4];
-    float specularLight[4];
-    float exponent;
-    RGBAValue attribureColour;
-    float ambientMaterial[4];
-    float diffuseMaterial[4];
-    float specularMaterial[4];
-    float emissiveMaterial[4];
-    Cartesian3 attribureNormal;
+    Homogeneous4 lightPosition; //store the light position , if w == 0, then we have a directional light
+    float ambientLight[4]; //store the ambient light component
+    float diffuseLight[4]; //store the diffuse light component
+    float specularLight[4]; //store the specular light component
+    float exponent; //the specular light exponent
+    RGBAValue attributeColour;  //without texture, the model uses this colour
+    float ambientMaterial[4]; //the material ambient component
+    float diffuseMaterial[4]; //the material diffuse  component
+    float specularMaterial[4]; //the material specular component
+    float emissiveMaterial[4]; //the material emissive component
+    Cartesian3 attributeNormal; //store normal coordinates
     //-----------------------------
     // OUTPUT FROM TRANSFORM STAGE
     // INPUT TO RASTER STAGE
@@ -179,9 +183,9 @@ class FakeGL
     //-----------------------------
     // RASTERISE STATE
     //-----------------------------
-    unsigned int primitiveType;
-    float pointSize;
-    float lineWidth;
+    unsigned int primitiveType; //store the primitive type
+    float pointSize; //store a point's size
+    float lineWidth; //store a line's width
 
     //-----------------------------
     // OUTPUT FROM RASTER STAGE
@@ -192,18 +196,18 @@ class FakeGL
     //-----------------------------
     // TEXTURE STATE
     //-----------------------------
-    unsigned int textureState;
-    float attributeU;
-    float attribureV;
-    RGBAImage textureImage;
+    unsigned int textureState; //texture has two states, so we need a var to store the current state
+    float attributeU; //store texture coordinate u when the value passed to FakeGL
+    float attributeV; //store texture coordinate v when the value passed to FakeGL
+    RGBAImage textureImage; //store the texture data
     //-----------------------------
     // FRAMEBUFFER STATE
     // OUTPUT FROM FRAGMENT STAGE
     //-----------------------------
-    unsigned int colourState;
-    RGBAValue clearColour;
-    RGBAValue depthColour;
 
+    RGBAValue clearColour; //store clearColour, this var can be set outside
+    RGBAValue depthColour;  //store depthColour, this var can be set outside
+    //when config the projection matrix, we need store near and far value, as we need use them for depth test
     float  near;
     float  far;
 

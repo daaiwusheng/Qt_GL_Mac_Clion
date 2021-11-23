@@ -36,29 +36,34 @@ using namespace std;
 // constructor
 FakeGL::FakeGL()
     { // constructor
-
+        //in constructor function, we only need to initialize the properties belonging to this class.
+        //for some values that is worthy to explain, I will do that.
         this->viewPortWidth = 0;
         this->viewPortHeight = 0;
 
-        this->attribureColour.red = this->attribureColour.green = this->attribureColour.blue = this->attribureColour.alpha = 1.0;
+        this->attributeColour.red = this->attributeColour.green = this->attributeColour.blue = this->attributeColour.alpha = 1.0;
+        //the depthColor is used to store value in depthbuffer, as depthbuffer needs this type of data.
+        //in depthColour only alpha is represented as the value of depth, so we set other values as 0,
+        //but set alpha as 255, as any value less than 255 will be stored in depthbuffer
         this->depthColour.red =  this->depthColour.green =  this->depthColour.blue = 0;
         this->depthColour.alpha = 255;
 
-        this->attribureNormal.x = 0;
-        this->attribureNormal.y = 0;
-        this->attribureNormal.z = 1;
+        this->attributeNormal.x = 0;
+        this->attributeNormal.y = 0;
+        this->attributeNormal.z = 1;// just avoid attributeNormal to be zero vector
 
-        Matrix4 identifyMatrix = Matrix4();
-        identifyMatrix.SetIdentity();
-        this->stackModelView.push_back(identifyMatrix);
-        this->stackProjection.push_back(identifyMatrix);
+        Matrix4 identityMatrix = Matrix4();
+        identityMatrix.SetIdentity();
+        //pushing an identity matrix in is safe
+        this->stackModelView.push_back(identityMatrix);
+        this->stackProjection.push_back(identityMatrix);
 
         this->isLighting = false;
         this->isTexture = false;
         this->isDepthTest = false;
         this->isPhongShading = true;
 
-        this->lightPosition = Homogeneous4(0,0,1,0);
+        this->lightPosition = Homogeneous4(0,0,1,0); //avoid zero vector and initialize it as a directional light
         this->ambientLight[0] = this->ambientLight[1] = this->ambientLight[2] = 0;
         this->ambientLight[3] = 1;
         this->diffuseLight[0] = this->diffuseLight[1] = this->diffuseLight[2] = 0;
@@ -82,7 +87,7 @@ FakeGL::FakeGL()
         this->lineWidth = 1;
 
         this->attributeU = 0;
-        this->attribureV = 0;
+        this->attributeV = 0;
 
         this->near = 1;
         this->far = -1;
@@ -104,18 +109,23 @@ FakeGL::~FakeGL()
 // starts a sequence of geometric primitives
 void FakeGL::Begin(unsigned int PrimitiveType)
     { // Begin()
+        //from the name "Begin", we can know that this function is a start point of some process,
+        //so store the PrimitiveType.
+        //and we also can understan the function's role by checking where it is called.
         this->primitiveType = PrimitiveType;
     } // Begin()
 
 // ends a sequence of geometric primitives
 void FakeGL::End()
     { // End()
-        this->primitiveType = -1;
+        this->primitiveType = -1; //set it as -1 is safe. and a good habit for programming
     } // End()
 
 // sets the size of a point for drawing
 void FakeGL::PointSize(float size)
     { // PointSize()
+        //here we need to guarantee pointSize is integer, as in pixels, we can not use decimal value.
+        //and at least is 1.
         this->pointSize = round(size);
         if (this->pointSize < 1)
             this->pointSize = 1;
@@ -124,6 +134,8 @@ void FakeGL::PointSize(float size)
 // sets the width of a line for drawing purposes
 void FakeGL::LineWidth(float width)
     { // LineWidth()
+        //here we need to guarantee lineWidth is integer, as in pixels, we can not use decimal value.
+        //and at least is 1.
         this->lineWidth = round(width);
         if (this->lineWidth < 1)
             this->lineWidth = 1;
@@ -139,12 +151,17 @@ void FakeGL::LineWidth(float width)
 // set the matrix mode (i.e. which one we change)   
 void FakeGL::MatrixMode(unsigned int whichMatrix)
     { // MatrixMode()
+        //this function is important, when a state is set via this function,we need to store it.
+        //We will use the state to determine which matrix stack can be used.
         this->matrixState = whichMatrix;
     } // MatrixMode()
 
 // pushes a matrix on the stack
 void FakeGL::PushMatrix()
     { // PushMatrix()
+        //when we need to use the current matrix in the stacks, and the calculation can affect the current matrix,
+        //we need to store a copy of current matrix, so we push as copy of the last one in the stacks.
+        //when we set the light we need to do this.
         if (this->matrixState & FAKEGL_MODELVIEW){
             this->stackModelView.push_back(this->stackModelView.back());
         } else if (this->matrixState & FAKEGL_PROJECTION){
@@ -155,6 +172,7 @@ void FakeGL::PushMatrix()
 // pops a matrix off the stack
 void FakeGL::PopMatrix()
     { // PopMatrix()
+        //when we do not need the last matrix in the stacks we need to pop it out.
         if (this->matrixState & FAKEGL_MODELVIEW) {
             this->stackModelView.pop_back();
         } else if (this->matrixState & FAKEGL_PROJECTION){
@@ -166,6 +184,7 @@ void FakeGL::PopMatrix()
 // load the identity matrix
 void FakeGL::LoadIdentity()
     { // LoadIdentity()
+        //this function just push an identity in current stack
         if (this->matrixState & FAKEGL_MODELVIEW) {
             this->stackModelView.back().SetIdentity();
         }
@@ -178,6 +197,7 @@ void FakeGL::LoadIdentity()
 // multiply by a known matrix in column-major format
 void FakeGL::MultMatrixf(const float *columnMajorCoordinates)
     { // MultMatrixf()
+    //this function is easy, just math
         Matrix4 currentBackMatrix;
         Matrix4 resultMatrix = Matrix4();
         resultMatrix.SetZero();
@@ -211,6 +231,7 @@ void FakeGL::MultMatrixf(const float *columnMajorCoordinates)
 // sets up a perspective projection matrix
 void FakeGL::Frustum(float left, float right, float bottom, float top, float zNear, float zFar)
     { // Frustum()
+    //use the formula from our ppt
         if(left == right || bottom == top || zNear == zFar)
             return;
         Matrix4 frustumMatrix = Matrix4();
@@ -222,15 +243,18 @@ void FakeGL::Frustum(float left, float right, float bottom, float top, float zNe
         frustumMatrix[2][2] = -1*(zFar + zNear)/(zFar - zNear);
         frustumMatrix[2][3] = -2*zFar*zNear/(zFar-zNear);
         frustumMatrix[3][2] = -1;
+        // here is important,as we need to push the matrix in stack, then later we can use it conveniently.
         MultMatrixf(frustumMatrix.columnMajor().coordinates);
 
-        this->near = zNear;
-        this->far = zFar;
+        this->near = zNear;//store near value
+        this->far = zFar; //store far value
+        //we need use this two values for depth test
     } // Frustum()
 
 // sets an orthographic projection matrix
 void FakeGL::Ortho(float left, float right, float bottom, float top, float zNear, float zFar)
     { // Ortho()
+        //use the formula from our ppt
         if(left == right || bottom == top || zNear == zFar)
             return;
         Matrix4 orthogonalMatrix = Matrix4();
@@ -242,16 +266,21 @@ void FakeGL::Ortho(float left, float right, float bottom, float top, float zNear
         orthogonalMatrix[2][2] = -2/(zFar - zNear);
         orthogonalMatrix[2][3] = -1*(zFar + zNear)/(zFar-zNear);
         orthogonalMatrix[3][3] = 1;
+        // here is important,as we need to push the matrix in stack, then later we can use it conveniently.
         MultMatrixf(orthogonalMatrix.columnMajor().coordinates);
 
-        this->near = zNear;
-        this->far = zFar;
+        this->near = zNear; //store near value
+        this->far = zFar; //store far value
+        //we need use this two values for depth test
 
     } // Ortho()
 
 // rotate the matrix
 void FakeGL::Rotatef(float angle, float axisX, float axisY, float axisZ)
     { // Rotatef()
+        //the function is different from our ppt, as we need to set a matrix that can do rotate for any axis
+        //I find this formula on Internet.
+        //but I found this function is not used in this program
         float theta = (angle / 180) * PI;
         float cosValue = cos(theta);
         float sinValue = sin(theta);
@@ -275,7 +304,7 @@ void FakeGL::Rotatef(float angle, float axisX, float axisY, float axisZ)
         rotationMatrix[2][2] = z * z * (1 - cosValue) + cosValue;
         rotationMatrix[3][3] = 1;
 
-
+        // here is important,as we need to push the matrix in stack, then later we can use it conveniently.
         MultMatrixf(rotationMatrix.columnMajor().coordinates);
 
     } // Rotatef()
@@ -283,6 +312,7 @@ void FakeGL::Rotatef(float angle, float axisX, float axisY, float axisZ)
 // scale the matrix
 void FakeGL::Scalef(float xScale, float yScale, float zScale)
     { // Scalef()
+        //use the formula from our ppt
         Matrix4 scaleMatrix = Matrix4();
         scaleMatrix.SetZero();
         scaleMatrix[0][0] = xScale;
@@ -295,12 +325,13 @@ void FakeGL::Scalef(float xScale, float yScale, float zScale)
 // translate the matrix
 void FakeGL::Translatef(float xTranslate, float yTranslate, float zTranslate)
     { // Translatef()
+        //use the formula from our ppt
         Matrix4 translateMatrix = Matrix4();
         translateMatrix.SetIdentity();
         translateMatrix[0][3] = xTranslate;
         translateMatrix[1][3] = yTranslate;
         translateMatrix[2][3] = zTranslate;
-
+        // here is important,as we need to push the matrix in stack, then later we can use it conveniently.
         MultMatrixf(translateMatrix.columnMajor().coordinates);
 
     } // Translatef()
@@ -308,12 +339,11 @@ void FakeGL::Translatef(float xTranslate, float yTranslate, float zTranslate)
 // sets the viewport
 void FakeGL::Viewport(int x, int y, int width, int height)
     { // Viewport()
-
-        float size = (width < height) ? width : height;
-        this->viewPortWidth = size;
-        this->viewPortHeight = size;
-        this->originScreenX = x + (width / 2.0 - size / 2.0);
-        this->originScreenY = y + (height / 2.0 - size / 2.0);
+        //set the viewport size and origin
+        this->viewPortWidth = width;
+        this->viewPortHeight = height;
+        this->originScreenX = x;
+        this->originScreenY = y;
 
     } // Viewport()
 
@@ -326,6 +356,7 @@ void FakeGL::Viewport(int x, int y, int width, int height)
 // sets colour with floating point
 void FakeGL::Color3f(float red, float green, float blue)
     { // Color3f()
+    //guarantee red and green and blue are in [0,1]
         if (red < 0)
             red = 0;
         if (red > 1)
@@ -340,16 +371,17 @@ void FakeGL::Color3f(float red, float green, float blue)
             blue = 0;
         if (blue > 1)
             blue = 1;
-
-        this->attribureColour.red = red * 255;
-        this->attribureColour.green = green * 255;
-        this->attribureColour.blue = blue * 255;
+        //then multiply them by 255, set RGB value.
+        this->attributeColour.red = red * 255;
+        this->attributeColour.green = green * 255;
+        this->attributeColour.blue = blue * 255;
 
     } // Color3f()
 
 // sets material properties
 void FakeGL::Materialf(unsigned int parameterName, const float parameterValue)
     { // Materialf()
+        //this function assign material and shininess exponent to corresponding var, according to different type.
         if (parameterName & FAKEGL_AMBIENT) {
             this->ambientMaterial[0] = this->ambientMaterial[1] = this->ambientMaterial[2] = parameterValue;
         }
@@ -371,6 +403,7 @@ void FakeGL::Materialf(unsigned int parameterName, const float parameterValue)
 
 void FakeGL::Materialfv(unsigned int parameterName, const float *parameterValues)
     { // Materialfv()
+        //this function assign material to corresponding var, according to different type.
         if (parameterName & FAKEGL_AMBIENT) {
             this->ambientMaterial[0] = parameterValues[0];
             this->ambientMaterial[1] = parameterValues[1];
@@ -400,39 +433,44 @@ void FakeGL::Materialfv(unsigned int parameterName, const float *parameterValues
 // sets the normal vector
 void FakeGL::Normal3f(float x, float y, float z)
     { // Normal3f()
-        this->attribureNormal.x = x;
-        this->attribureNormal.y = y;
-        this->attribureNormal.z = z;
+        //assign normal vector in. This function work together with Vertex3f.
+        //And shoulder store a vertex's normal vector.
+        this->attributeNormal.x = x;
+        this->attributeNormal.y = y;
+        this->attributeNormal.z = z;
     } // Normal3f()
 
 // sets the texture coordinates
 void FakeGL::TexCoord2f(float u, float v)
     { // TexCoord2f()
+        //assign u v texture coordinates in.
         this->attributeU = u;
-        this->attribureV = v;
+        this->attributeV = v;
     } // TexCoord2f()
 
 // sets the vertex & launches it down the pipeline
 void FakeGL::Vertex3f(float x, float y, float z)
     { // Vertex3f()
+        //form a vertex's attributes
         vertexWithAttributes currentVertex = vertexWithAttributes();
         currentVertex.position = Homogeneous4(x, y, z, 1);
-        currentVertex.colour = this->attribureColour;
-        this->attribureNormal.unit();
-        currentVertex.normal = Homogeneous4(this->attribureNormal);
+        currentVertex.colour = this->attributeColour;
+        this->attributeNormal.unit();
+        currentVertex.normal = Homogeneous4(this->attributeNormal);
         currentVertex.normal.w = 0;
         currentVertex.u = this->attributeU;
-        currentVertex.v = this->attribureV;
+        currentVertex.v = this->attributeV;
         currentVertex.ambient = this->ambientMaterial;
         currentVertex.diffuse = this->diffuseMaterial;
         currentVertex.specular = this->specularMaterial;
         currentVertex.emissive = this->emissiveMaterial;
         currentVertex.exponent = this->exponent;
-
+        //when forming a vertex attributes, we push it in this queue, as we then we can use this vertex later.
         this->vertexQueue.push_back(currentVertex);
-        TransformVertex();
-        if (RasterisePrimitive()){
+        TransformVertex();//we need use TransformVertex function to transform the vertex in to screen coordinate system.
+        if (RasterisePrimitive()){//according to the current primitive type, this step can rasterise a kind of primitive.
             while (this->fragmentQueue.empty() == false){
+                //if the fragmentQueue is not empty we put all fragments in the framebuffer,which can let them shown on the screen.
                 ProcessFragment();
             }
         }
@@ -449,6 +487,7 @@ void FakeGL::Vertex3f(float x, float y, float z)
 // disables a specific flag in the library
 void FakeGL::Disable(unsigned int property)
     { // Disable()
+        //this function is easy, just a switch
         if (property == FAKEGL_LIGHTING){
             this->isLighting = false;
         }
@@ -466,12 +505,14 @@ void FakeGL::Disable(unsigned int property)
 // enables a specific flag in the library
 void FakeGL::Enable(unsigned int property)
     { // Enable()
+        //this function is easy, just a switch
         if (property == FAKEGL_LIGHTING){
             this->isLighting = true;
         } else if (property == FAKEGL_TEXTURE_2D){
             this->isTexture = true;
         }
         else if (property == FAKEGL_DEPTH_TEST) {
+            //here is important. we need set the size of depthBuffer, if we do not do this, we can not do depth test later.
             this->depthBuffer.Resize(this->frameBuffer.width, this->frameBuffer.height);
             this->isDepthTest = true;
         } else if (property == FAKEGL_PHONG_SHADING){
@@ -488,8 +529,10 @@ void FakeGL::Enable(unsigned int property)
 // sets properties for the one and only light
 void FakeGL::Light(int parameterName, const float *parameterValues)
     { // Light()
+        //according to different parameterName, we set corresponding values.
         if (parameterName & FAKEGL_POSITION){
             Homogeneous4 position = Homogeneous4(parameterValues[0], parameterValues[1], parameterValues[2], parameterValues[3]);
+            //here we need transform the light position to VCS.
             this->lightPosition = this->stackModelView.back() * position;
             }
 
@@ -526,6 +569,7 @@ void FakeGL::Light(int parameterName, const float *parameterValues)
 // sets whether textures replace or modulate
 void FakeGL::TexEnvMode(unsigned int textureMode)
     { // TexEnvMode()
+        //just set the texture mode.
         if (textureMode & FAKEGL_REPLACE){
             this->textureState = FAKEGL_REPLACE;
         } else if (textureMode & FAKEGL_MODULATE){
@@ -537,6 +581,8 @@ void FakeGL::TexEnvMode(unsigned int textureMode)
 // sets the texture image that corresponds to a given ID
 void FakeGL::TexImage2D(const RGBAImage &textureImage)
     { // TexImage2D()
+        //set the texture ppm data in texture Image. I got that on Internet, ppm and texture in GL have reversed coordinates.
+        //So we change row and column.
         this->textureImage.Resize(textureImage.height, textureImage.width);
         for (int r = 0; r < textureImage.height; ++r) {
             for (int column = 0; column < textureImage.width; ++column) {
@@ -554,7 +600,7 @@ void FakeGL::TexImage2D(const RGBAImage &textureImage)
 // clears the frame buffer
 void FakeGL::Clear(unsigned int mask)
     { // Clear()
-
+           //just set frame buffer and depth buffer to a same value.
            if(FAKEGL_COLOR_BUFFER_BIT & mask ){
                 for (int r = 0; r < this->frameBuffer.height; r++) {
                     for (int column = 0; column < this->frameBuffer.width; column++) {
@@ -595,7 +641,7 @@ void FakeGL::ClearColor(float red, float green, float blue, float alpha)
             alpha = 0;
         if (alpha > 1)
             alpha = 1;
-
+        //guarantee the r g b and alpha are in [0-255]
         this->clearColour = RGBAValue(red*255, green*255, blue*255, alpha*255);
     } // ClearColor()
 
@@ -608,21 +654,24 @@ void FakeGL::ClearColor(float red, float green, float blue, float alpha)
 // transform one vertex & shift to the raster queue
 void FakeGL::TransformVertex()
     { // TransformVertex()
+        //every time we pop a vertex from the vertexQueue, then transform it.
         vertexWithAttributes currentVertex = this->vertexQueue.front();
         this->vertexQueue.pop_front();
-        Homogeneous4 currentVCSCoordinates = this->stackModelView.back() * currentVertex.position;
-        Homogeneous4 currentCCSCoordinates = this->stackProjection.back() * currentVCSCoordinates;
-        Cartesian3 currentNDSCoordinates = currentCCSCoordinates.Point();
+        Homogeneous4 currentVCSCoordinates = this->stackModelView.back() * currentVertex.position; //to VCS
+        Homogeneous4 currentCCSCoordinates = this->stackProjection.back() * currentVCSCoordinates; //to CCS
+        Cartesian3 currentNDSCoordinates = currentCCSCoordinates.Point(); //to NDCS
         float scaleX = this->viewPortWidth * 0.5;
         float translateX = scaleX;
         float scaleY = this->viewPortHeight * 0.5;
         float translateY = scaleX;
+        //to DCS, this step is different from our task in lab, as GL screen's origin is at the left bottom. So we do not need to inverse y.
         Cartesian3 currentDCSCoordinates = Cartesian3(currentNDSCoordinates.x * scaleX + translateX + this->originScreenX,
                                                       currentNDSCoordinates.y * scaleY + translateY + this->originScreenY,
                                                       -currentNDSCoordinates.z
                                                       );
         screenVertexWithAttributes currentScreenVertex = screenVertexWithAttributes();
         currentScreenVertex.position = currentDCSCoordinates;
+        //here, it is important, we need store the VCS position for current vertex, as we need calculate the light under VCS later.
         if (currentVCSCoordinates.w !=0){
             currentScreenVertex.fragmentPosition = currentVCSCoordinates.Vector()/currentVCSCoordinates.w;
         } else{
@@ -639,7 +688,7 @@ void FakeGL::TransformVertex()
         currentScreenVertex.u = currentVertex.u;
         currentScreenVertex.v = currentVertex.v;
 
-        this->rasterQueue.push_back(currentScreenVertex);
+        this->rasterQueue.push_back(currentScreenVertex);//push screen vertex in the raterQueue.
 
 
     } // TransformVertex()
@@ -647,6 +696,9 @@ void FakeGL::TransformVertex()
 // rasterise a single primitive if there are enough vertices on the queue
 bool FakeGL::RasterisePrimitive()
     { // RasterisePrimitive()
+        //according to different primitiveType, we rasterise them.
+        //And the type is set outside.
+        //raster one primitive , we need delete corresponding vertex.
         if (this->rasterQueue.empty()){
             return false;
         }
@@ -655,14 +707,14 @@ bool FakeGL::RasterisePrimitive()
             this->rasterQueue.pop_front();
             return true;
         }else if (this->primitiveType == FAKEGL_LINES) {
-            if (this->rasterQueue.size() < 2)
+            if (this->rasterQueue.size() < 2)//we need a judgement to guarantee it's a line
                 return false;
             RasteriseLineSegment(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1));
             this->rasterQueue.pop_front();
             this->rasterQueue.pop_front();
             return true;
         }else if (this->primitiveType == FAKEGL_TRIANGLES) {
-            if (this->rasterQueue.size() < 3) {
+            if (this->rasterQueue.size() < 3) {//we need a judgement to guarantee it's a triangle
                 return false;
             }
             RasteriseTriangle(*this->rasterQueue.begin(), *(this->rasterQueue.begin() + 1), *(this->rasterQueue.begin() + 2));
@@ -680,6 +732,7 @@ bool FakeGL::RasterisePrimitive()
 void FakeGL::RasterisePoint(screenVertexWithAttributes &vertex0)
     { // RasterisePoint()
         float halfPointSize = 0.5 * this->pointSize;
+        //the position is the center of a point, so we can calculate the box of the point.
         float minX = vertex0.position.x - halfPointSize;
         float maxX = vertex0.position.x + halfPointSize;
         float minY = vertex0.position.y - halfPointSize;
